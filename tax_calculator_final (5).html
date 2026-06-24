@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>列帳成本與實拿金額試算工具</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --white:#FFFFFF;
+  --bg:#FAFAF8;
+  --ink:#111111;
+  --ink-mid:#444444;
+  --ink-light:#888888;
+  --ink-dim:#AAAAAA;
+  --border:#E8E6E2;
+  --border-mid:#CCCAC6;
+  --result-bg:#F5F4F1;
+  --result-border:#DDDAD5;
+}
+html,body{background:var(--white);color:var(--ink);font-family:'Noto Sans TC','Microsoft JhengHei',sans-serif;font-weight:400;min-height:100vh}
+
+/* ── Topbar ── */
+.topbar{display:flex;align-items:flex-end;justify-content:space-between;padding:28px 48px;border-bottom:1px solid var(--border);background:var(--white)}
+.brand-eyebrow{font-size:11px;letter-spacing:0.25em;color:var(--ink-dim);font-weight:400;margin-bottom:10px;text-transform:uppercase}
+.brand-title{font-size:32px;font-weight:700;color:var(--ink);letter-spacing:0.04em;line-height:1;text-shadow:0 1px 0 #ddd,0 2px 0 #ccc}
+.settings-btn{font-size:13px;letter-spacing:0.1em;text-transform:uppercase;padding:13px 26px;border:1px solid var(--border-mid);background:transparent;cursor:pointer;color:#666;font-family:'Noto Sans TC',sans-serif;font-weight:500;transition:all 0.25s;white-space:nowrap}
+.settings-btn:hover{background:var(--ink);color:var(--white);border-color:var(--ink)}
+
+/* ── Layout ── */
+.main{display:grid;grid-template-columns:1fr 380px;min-height:calc(100vh - 97px)}
+.left-panel{padding:40px 48px;border-right:1px solid var(--border)}
+.right-panel{padding:40px 40px;background:var(--result-bg);position:sticky;top:0;height:fit-content}
+
+/* ── Step blocks ── */
+.step-block{margin-bottom:4px;background:var(--white);border:1px solid var(--border);transition:opacity 0.3s}
+.step-block.inactive{opacity:0.28;pointer-events:none}
+.step-inner{padding:28px 36px}
+.step-header{display:flex;align-items:center;gap:20px;padding-bottom:20px;border-bottom:1px solid var(--border);margin-bottom:24px}
+.step-num{font-size:14px;color:#BBB;font-style:italic;font-family:Georgia,serif;min-width:22px;flex-shrink:0}
+.step-label{font-size:18px;font-weight:700;color:var(--ink);letter-spacing:0.08em;text-transform:uppercase}
+
+/* ── Auto tags ── */
+.auto-row{display:flex;gap:12px;margin-top:18px}
+.auto-card{flex:1;padding:16px 18px;background:var(--bg);border:1px solid var(--border);border-top:2px solid var(--ink)}
+.auto-card-label{font-size:11px;letter-spacing:0.15em;text-transform:uppercase;color:var(--ink-dim);margin-bottom:8px;font-weight:500}
+.auto-card-val{font-size:18px;color:var(--ink);font-weight:700}
+
+/* ── Form elements ── */
+select,input[type=number]{
+  width:100%;padding:14px 18px;
+  font-size:17px;font-family:'Noto Sans TC',sans-serif;font-weight:500;
+  border:1px solid var(--border-mid);background:var(--white);color:var(--ink);
+  outline:none;transition:border-color 0.2s;
+  appearance:none;-webkit-appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='7' viewBox='0 0 11 7'%3E%3Cpath d='M1 1l4.5 4.5L10 1' stroke='%23999' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 18px center;
+}
+select option{background:var(--white);color:var(--ink)}
+input[type=number]{background-image:none}
+select:focus,input[type=number]:focus{border-color:var(--ink)}
+.radio-group{display:flex;flex-direction:column;gap:16px}
+.radio-opt{display:flex;align-items:center;gap:14px;font-size:17px;font-weight:400;color:var(--ink-light);cursor:pointer;transition:color 0.2s}
+.radio-opt:hover{color:var(--ink)}
+.radio-opt input[type=radio]{width:17px;height:17px;flex-shrink:0;cursor:pointer;accent-color:var(--ink)}
+.radio-opt input[type=radio]:checked+span{color:var(--ink);font-weight:500}
+
+/* ── Checklist ── */
+.checklist{margin-top:20px;padding:20px 24px;background:var(--bg);border-left:3px solid var(--ink-dim)}
+.checklist-title{font-size:13px;letter-spacing:0.12em;text-transform:uppercase;color:var(--ink-light);margin-bottom:14px;font-weight:500}
+.check-item{display:flex;align-items:flex-start;gap:12px;font-size:16px;font-weight:400;color:var(--ink-light);margin-bottom:12px;cursor:pointer;line-height:1.7}
+.check-item input[type=checkbox]{width:16px;height:16px;margin-top:3px;accent-color:var(--ink);flex-shrink:0;cursor:pointer}
+
+/* ── Treaty ── */
+.treaty-label{font-size:13px;letter-spacing:0.08em;color:var(--ink-light);margin-bottom:10px;margin-top:22px;display:block;font-weight:500}
+.treaty-result{font-size:15px;margin-top:10px;padding:13px 18px;background:var(--bg);border:1px solid var(--border-mid);color:var(--ink-mid);font-weight:500}
+
+/* ── Amount hint ── */
+.amount-hint{font-size:13px;color:var(--ink-dim);margin-top:10px;letter-spacing:0.06em}
+
+/* ── Result panel ── */
+.result-title{font-size:22px;font-weight:700;color:var(--ink);letter-spacing:0.06em;text-transform:uppercase;text-shadow:0 1px 0 #ddd,0 2px 0 #ccc;margin-bottom:32px;padding-bottom:20px;border-bottom:2px solid var(--ink)}
+.result-item{padding:22px 0;border-bottom:1px solid var(--result-border)}
+.result-item:last-of-type{border-bottom:none}
+.result-item-label{font-size:17px;color:var(--ink-mid);margin-bottom:10px;font-weight:700;letter-spacing:0.02em}
+.result-item-val{font-size:38px;font-weight:700;color:var(--ink);letter-spacing:-0.01em;text-shadow:0 1px 0 #ddd,0 2px 0 #ccc}
+.result-item-val.secondary{font-size:30px;font-weight:500;color:#666;text-shadow:none}
+.result-note{font-size:15px;color:var(--ink-dim);margin-top:20px;line-height:2.2;letter-spacing:0.04em;border-top:1px solid var(--result-border);padding-top:18px;font-weight:500}
+.result-placeholder{text-align:center;padding:80px 0}
+.result-placeholder-rule{width:32px;height:2px;background:var(--border-mid);margin:0 auto 20px}
+.result-placeholder-text{font-size:15px;letter-spacing:0.15em;text-transform:uppercase;color:var(--ink-dim);font-weight:500}
+
+/* ── Settings overlay ── */
+.settings-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:100;display:flex;align-items:center;justify-content:center}
+.settings-modal{background:var(--white);width:90%;max-width:620px;max-height:88vh;overflow-y:auto;border:1px solid var(--border)}
+.settings-top{padding:32px 40px 0;border-bottom:1px solid var(--border)}
+.settings-title{font-size:26px;font-weight:700;color:var(--ink);margin-bottom:24px;letter-spacing:0.04em;text-shadow:0 1px 0 #ddd}
+.tab-bar{display:flex}
+.tab{padding:12px 20px;font-size:12px;letter-spacing:0.12em;text-transform:uppercase;cursor:pointer;color:var(--ink-dim);border-bottom:2px solid transparent;margin-bottom:-1px;font-family:'Noto Sans TC',sans-serif;font-weight:500;transition:all 0.2s}
+.tab:hover{color:var(--ink-mid)}
+.tab.active{color:var(--ink);border-bottom-color:var(--ink)}
+.settings-body{padding:32px 40px}
+.settings-section{margin-bottom:24px;padding-bottom:24px;border-bottom:1px solid var(--border)}
+.settings-section:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0}
+.settings-section h3{font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:var(--ink-dim);margin-bottom:16px;font-weight:500}
+.settings-row{display:flex;align-items:center;gap:12px;margin-bottom:10px;font-size:14px;font-weight:400;color:var(--ink-mid)}
+.settings-row label{flex:1}
+.settings-row input[type=number],.settings-row input[type=text],.settings-row input[type=password]{width:160px;padding:9px 14px;font-size:14px;margin-top:0}
+.item-row{display:flex;gap:8px;margin-bottom:8px;align-items:center}
+.item-row input[type=text]{flex:2;padding:9px 14px;font-size:13px;margin-top:0}
+.item-row select{flex:1;padding:9px 14px;font-size:13px;margin-top:0;background-position:right 10px center}
+.btn-del{background:none;border:1px solid var(--border);padding:7px 12px;cursor:pointer;color:var(--ink-dim);font-size:12px;font-family:'Noto Sans TC',sans-serif;transition:all 0.2s}
+.btn-del:hover{border-color:#c44;color:#c44}
+.btn-add{background:none;border:1px solid var(--border-mid);padding:9px 20px;cursor:pointer;color:var(--ink-mid);font-size:12px;margin-top:8px;font-family:'Noto Sans TC',sans-serif;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;transition:all 0.2s}
+.btn-add:hover{border-color:var(--ink);color:var(--ink)}
+.btn-save{background:var(--ink);color:var(--white);border:none;padding:12px 30px;cursor:pointer;font-size:13px;margin-top:16px;font-family:'Noto Sans TC',sans-serif;font-weight:500;letter-spacing:0.12em;text-transform:uppercase;transition:background 0.2s}
+.btn-save:hover{background:#333}
+.btn-close{background:none;border:1px solid var(--border-mid);padding:11px 24px;cursor:pointer;font-size:13px;color:var(--ink-mid);font-family:'Noto Sans TC',sans-serif;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;margin-left:8px;transition:all 0.2s}
+.btn-close:hover{border-color:var(--ink);color:var(--ink)}
+.settings-footer{padding:20px 40px;border-top:1px solid var(--border);display:flex;justify-content:flex-end}
+.pw-label{font-size:12px;letter-spacing:0.15em;text-transform:uppercase;color:var(--ink-dim);margin-bottom:10px;display:block;font-weight:500}
+.pw-wrap{margin-bottom:22px}
+.pw-wrap input{width:100%;padding:13px 18px;font-size:15px;margin-top:0}
+.pw-err{color:#C44040;font-size:13px;margin-top:8px;letter-spacing:0.04em;font-weight:500}
+.hidden{display:none}
+
+@media(max-width:600px){
+  html,body{font-size:20px}
+  .topbar{padding:20px;flex-wrap:wrap;gap:14px;background:#fff;border-bottom:3px solid var(--ink)}
+  .brand-eyebrow{font-size:12px;letter-spacing:0.15em}
+  .brand-title{font-size:22px;letter-spacing:0.01em;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .settings-btn{font-size:16px;padding:16px 20px;width:100%;text-align:center}
+  .main{grid-template-columns:1fr}
+  .right-panel{position:static;border-top:3px solid var(--ink);border-left:none}
+  .left-panel{padding:0}
+  .right-panel{padding:16px}
+  .step-block{margin-bottom:0;border-radius:0;min-height:140px;border-left:none;border-right:none;border-top:none;border-bottom:3px solid var(--ink)}
+  .step-inner{padding:24px;min-height:140px;display:flex;flex-direction:column;justify-content:flex-start}
+  .step-header{gap:16px;margin-bottom:22px;padding-bottom:18px}
+  .step-num{font-size:16px}
+  .step-label{font-size:22px;letter-spacing:0.06em}
+  .radio-group{gap:22px}
+  .radio-opt{font-size:20px;gap:16px}
+  .radio-opt input[type=radio]{width:24px;height:24px;flex-shrink:0}
+  select,input[type=number]{font-size:20px;padding:18px 18px}
+  .auto-row{gap:12px;margin-top:18px}
+  .auto-card{padding:16px 18px}
+  .auto-card-label{font-size:12px;margin-bottom:8px}
+  .auto-card-val{font-size:22px}
+  .check-item{font-size:19px;gap:14px;margin-bottom:16px;line-height:1.6}
+  .check-item input[type=checkbox]{width:22px;height:22px;margin-top:2px}
+  .checklist{padding:22px;margin-top:22px}
+  .checklist-title{font-size:15px;margin-bottom:16px}
+  .treaty-label{font-size:17px;margin-top:24px;margin-bottom:12px}
+  .treaty-result{font-size:19px;padding:16px 18px}
+  .amount-hint{font-size:15px;margin-top:12px}
+  .result-title{font-size:22px;margin-bottom:24px;padding-bottom:18px}
+  .result-item{padding:22px 0}
+  .result-item-label{font-size:18px;margin-bottom:10px}
+  .result-item-val{font-size:34px}
+  .result-item-val.primary{font-size:40px}
+  .result-item-val.secondary{font-size:28px}
+  .result-note{font-size:16px;line-height:2;margin-top:20px;padding-top:18px}
+  .result-placeholder{padding:60px 0}
+  .result-placeholder-text{font-size:17px}
+  .settings-modal{width:96%;max-height:92vh}
+  .settings-top{padding:24px 22px 0}
+  .settings-title{font-size:24px;margin-bottom:20px}
+  .settings-body{padding:22px}
+  .settings-footer{padding:16px 22px}
+  .tab{padding:12px 14px;font-size:13px}
+  .settings-section h3{font-size:12px;margin-bottom:14px}
+  .settings-row{font-size:16px;margin-bottom:14px}
+  .btn-save{font-size:15px;padding:14px 28px}
+  .btn-close{font-size:15px;padding:13px 22px}
+  .pw-wrap input{font-size:20px;padding:16px 18px}
+  .pw-label{font-size:14px;margin-bottom:10px}
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">
+    <div class="brand-eyebrow">Internal Tool · Finance</div>
+    <div class="brand-title">列帳成本與實拿金額試算工具</div>
+  </div>
+  <button class="settings-btn" onclick="openSettings()">財務設定區</button>
+</div>
+
+<div class="main">
+  <div class="left-panel">
+
+    <div class="step-block" id="blk1">
+      <div class="step-inner">
+        <div class="step-header">
+          <div class="step-num">I</div>
+          <div class="step-label">選擇費用內容</div>
+        </div>
+        <select id="sel-content" onchange="onContent()"><option value="">— 請選擇 —</option></select>
+        <div class="auto-row hidden" id="auto-info">
+          <div class="auto-card"><div class="auto-card-label">所得類別</div><div class="auto-card-val" id="disp-cat">—</div></div>
+          <div class="auto-card"><div class="auto-card-label">格式代碼</div><div class="auto-card-val" id="disp-code">—</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="step-block inactive" id="blk2">
+      <div class="step-inner">
+        <div class="step-header">
+          <div class="step-num">II</div>
+          <div class="step-label">所得人身分</div>
+        </div>
+        <div class="radio-group">
+          <label class="radio-opt"><input type="radio" name="identity" value="local" onchange="onIdentity()"> <span>本國人</span></label>
+          <label class="radio-opt"><input type="radio" name="identity" value="foreign183" onchange="onIdentity()"> <span>外國人，主張滿 183 天（視同本國人）</span></label>
+          <label class="radio-opt"><input type="radio" name="identity" value="foreign" onchange="onIdentity()"> <span>外國人，未滿 183 天</span></label>
+        </div>
+        <div class="checklist hidden" id="checklist-183">
+          <div class="checklist-title">請確認以下兩項，才能視同本國人</div>
+          <label class="check-item"><input type="checkbox" id="chk1" onchange="onCheck()"> 所得人已提供居留證影本</label>
+          <label class="check-item"><input type="checkbox" id="chk2" onchange="onCheck()"> 已詢問財務部，確認本年度截至付款日已居留滿 183 天</label>
+        </div>
+        <div class="hidden" id="treaty-wrap">
+          <span class="treaty-label">所得人國籍（判斷是否適用租稅協定）</span>
+          <select id="sel-country" onchange="onCountry()"></select>
+          <div id="disp-treaty" class="treaty-result hidden"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="step-block inactive" id="blk3">
+      <div class="step-inner">
+        <div class="step-header">
+          <div class="step-num">III</div>
+          <div class="step-label">稅由誰負擔</div>
+        </div>
+        <div class="radio-group">
+          <label class="radio-opt"><input type="radio" name="taxmode" value="normal" onchange="onTaxMode()"> <span>對方負擔（正常版）</span></label>
+          <label class="radio-opt"><input type="radio" name="taxmode" value="net" onchange="onTaxMode()"> <span>公司負擔（實拿版）</span></label>
+        </div>
+      </div>
+    </div>
+
+    <div class="step-block inactive" id="blk4">
+      <div class="step-inner">
+        <div class="step-header">
+          <div class="step-num">IV</div>
+          <div class="step-label">是否有工會</div>
+        </div>
+        <div class="radio-group">
+          <label class="radio-opt"><input type="radio" name="union" value="no" onchange="onUnion()"> <span>無工會</span></label>
+          <label class="radio-opt"><input type="radio" name="union" value="yes" onchange="onUnion()"> <span>有工會（已提供投保證明）</span></label>
+        </div>
+      </div>
+    </div>
+
+    <div class="step-block inactive" id="blk5">
+      <div class="step-inner">
+        <div class="step-header">
+          <div class="step-num">V</div>
+          <div class="step-label" id="amt-label">輸入所得額</div>
+        </div>
+        <input type="number" id="inp-amt" placeholder="請輸入金額（整數，新台幣）" min="0" step="1" oninput="calculate()">
+        <div class="amount-hint">結果即時顯示於右側</div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="right-panel">
+    <div class="result-title">計算結果</div>
+    <div id="result-placeholder" class="result-placeholder">
+      <div class="result-placeholder-rule"></div>
+      <div class="result-placeholder-text">請完成左側步驟</div>
+    </div>
+    <div id="result-area" class="hidden">
+      <div class="result-item">
+        <div class="result-item-label" id="lbl-company">公司帳列的成本金額：填入報支單</div>
+        <div class="result-item-val" id="r-company">—</div>
+      </div>
+      <div class="result-item">
+        <div class="result-item-label">扣繳稅額</div>
+        <div class="result-item-val secondary" id="r-tax">—</div>
+      </div>
+      <div class="result-item">
+        <div class="result-item-label">補充保費</div>
+        <div class="result-item-val secondary" id="r-nhi">—</div>
+      </div>
+      <div class="result-item">
+        <div class="result-item-label">公司要額外增加的成本合計</div>
+        <div class="result-item-val secondary" id="r-extra">—</div>
+      </div>
+      <div class="result-item">
+        <div class="result-item-label" id="lbl-net">給付淨額</div>
+        <div class="result-item-val" id="r-net">—</div>
+      </div>
+      <div class="result-note" id="r-note"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Settings -->
+<div class="settings-overlay hidden" id="settings-overlay">
+  <div class="settings-modal">
+    <div class="settings-top">
+      <div class="settings-title">財務設定區</div>
+      <div id="pw-section">
+        <div class="pw-wrap">
+          <span class="pw-label">請輸入財務設定密碼</span>
+          <input type="password" id="pw-input" placeholder="密碼" onkeydown="if(event.key==='Enter')verifyPw()">
+          <div class="pw-err hidden" id="pw-err">密碼錯誤，請重試</div>
+        </div>
+        <button class="btn-save" onclick="verifyPw()">確認</button>
+        <button class="btn-close" onclick="closeSettings()">取消</button>
+      </div>
+      <div id="tab-nav" class="tab-bar hidden">
+        <div class="tab active" onclick="showTab('tab-rates')">稅率參數</div>
+        <div class="tab" onclick="showTab('tab-items')">費用內容</div>
+        <div class="tab" onclick="showTab('tab-treaty')">租稅協定國家</div>
+        <div class="tab" onclick="showTab('tab-pw')">修改密碼</div>
+      </div>
+    </div>
+    <div id="settings-content" class="hidden">
+      <div class="settings-body">
+        <div id="tab-rates">
+          <div class="settings-section">
+            <h3>補充保費</h3>
+            <div class="settings-row"><label>補充保費率（%）</label><input type="number" id="cfg-nhib" step="0.001" min="0"></div>
+            <div class="settings-row"><label>勞務補充保費起扣點（元）</label><input type="number" id="cfg-nhi-labor" step="1" min="0"></div>
+            <div class="settings-row"><label>薪資補充保費起扣點（元）</label><input type="number" id="cfg-nhi-salary" step="1" min="0"></div>
+          </div>
+          <div class="settings-section">
+            <h3>薪資所得扣繳</h3>
+            <div class="settings-row"><label>薪資扣繳起扣點（元）</label><input type="number" id="cfg-salary-threshold" step="1" min="0"></div>
+            <div class="settings-row"><label>薪資扣繳稅率（%）</label><input type="number" id="cfg-salary-rate" step="0.1" min="0"></div>
+          </div>
+          <div class="settings-section" style="border:none;margin:0;padding:0">
+            <h3>勞務所得扣繳</h3>
+            <div class="settings-row"><label>勞務扣繳起扣點（元）</label><input type="number" id="cfg-labor-threshold" step="1" min="0"></div>
+            <div class="settings-row"><label>勞務扣繳稅率（%）</label><input type="number" id="cfg-labor-rate" step="0.1" min="0"></div>
+          </div>
+          <button class="btn-save" onclick="saveRates()">儲存稅率參數</button>
+        </div>
+        <div id="tab-items" class="hidden">
+          <div style="font-size:13px;color:var(--ink-dim);margin-bottom:16px;letter-spacing:0.04em">新增、修改或刪除費用內容項目</div>
+          <div id="items-list"></div>
+          <button class="btn-add" onclick="addItem()">＋ 新增費用內容</button>
+          <br><button class="btn-save" onclick="saveItems()">儲存費用內容</button>
+        </div>
+        <div id="tab-treaty" class="hidden">
+          <div style="font-size:13px;color:var(--ink-dim);margin-bottom:16px;letter-spacing:0.04em">列於此清單的國家適用租稅協定（權利金稅率10%）</div>
+          <div id="treaty-list"></div>
+          <button class="btn-add" onclick="addTreaty()">＋ 新增國家</button>
+          <br><button class="btn-save" onclick="saveTreaty()">儲存租稅協定國家</button>
+        </div>
+        <div id="tab-pw" class="hidden">
+          <div class="settings-section" style="border:none;margin:0;padding:0">
+            <h3>修改財務設定密碼</h3>
+            <div class="settings-row" style="flex-direction:column;align-items:flex-start;gap:6px">
+              <label>新密碼</label><input type="password" id="new-pw1" placeholder="請輸入新密碼" style="width:100%;margin-top:0">
+            </div>
+            <div class="settings-row" style="flex-direction:column;align-items:flex-start;gap:6px;margin-top:10px">
+              <label>確認新密碼</label><input type="password" id="new-pw2" placeholder="再輸入一次新密碼" style="width:100%;margin-top:0">
+            </div>
+            <div class="pw-err hidden" id="pw-change-err"></div>
+            <button class="btn-save" onclick="changePw()">確認修改密碼</button>
+          </div>
+        </div>
+      </div>
+      <div class="settings-footer">
+        <button class="btn-close" onclick="closeSettings()">關閉設定</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const DEFAULT_CONFIG={
+  password:'finance2026',nhib:2.11,nhiLaborThreshold:20000,nhiSalaryThreshold:29500,
+  salaryThreshold:90501,salaryRate:5,laborThreshold:20010,laborRate:10,
+  items:[
+    {name:'彩妝',cat:'薪資所得',code:'50'},{name:'造型',cat:'薪資所得',code:'50'},
+    {name:'髮型',cat:'薪資所得',code:'50'},{name:'攝影（網站及行銷活動）',cat:'薪資所得',code:'50'},
+    {name:'燈光',cat:'薪資所得',code:'50'},{name:'發表於官網及FB之文字稿費',cat:'薪資所得',code:'50'},
+    {name:'部落客費用',cat:'薪資所得',code:'50'},{name:'達人費',cat:'薪資所得',code:'50'},
+    {name:'主持費',cat:'薪資所得',code:'50'},{name:'出席費／車馬費',cat:'薪資所得',code:'50'},
+    {name:'設計費（網站）',cat:'薪資所得',code:'50'},{name:'影片後製／剪接',cat:'薪資所得',code:'50'},
+    {name:'插畫（網站）',cat:'薪資所得',code:'50'},{name:'臨時工資（工讀生）',cat:'薪資所得',code:'50'},
+    {name:'道具',cat:'薪資所得',code:'50'},{name:'講師費',cat:'薪資所得',code:'50'},
+    {name:'訓練費',cat:'薪資所得',code:'50'},{name:'諮詢費／顧問費',cat:'薪資所得',code:'50'},
+    {name:'廣告流量監測',cat:'薪資所得',code:'50'},
+    {name:'模特兒',cat:'執行業務',code:'9A'},{name:'表演費',cat:'執行業務',code:'9A'},
+    {name:'會計師',cat:'執行業務',code:'9A'},{name:'律師',cat:'執行業務',code:'9A'},
+    {name:'程式設計／網頁設計',cat:'執行業務',code:'9A'},
+    {name:'刊載於平面雜誌上之稿費',cat:'執行業務',code:'9B'},
+    {name:'美編設計費（平面）',cat:'執行業務',code:'9B'},{name:'攝影費（平面）',cat:'執行業務',code:'9B'},
+    {name:'插畫（平面）',cat:'執行業務',code:'9B'},{name:'場地佈置（平面）',cat:'執行業務',code:'9B'},
+    {name:'翻譯費',cat:'執行業務',code:'9B'},{name:'版稅',cat:'執行業務',code:'9B'},
+    {name:'編劇',cat:'執行業務',code:'9B'},{name:'作曲（含配樂）',cat:'執行業務',code:'9B'},
+    {name:'購買圖片／文字使用費',cat:'權利金',code:'53'},
+    {name:'抽獎之獎金及獎品',cat:'機會中獎',code:'91'}
+  ],
+  treatyCountries:['澳大利亞','奧地利','比利時','加拿大','捷克','丹麥','法國','德國','匈牙利','印尼','以色列','義大利','日本','吉里巴斯','盧森堡','馬來西亞','荷蘭','紐西蘭','北馬其頓','巴拉圭','塞內加爾','新加坡','斯洛伐克','南非','史瓦帝尼','瑞典','瑞士','英國','越南']
+};
+
+function loadConfig(){try{const s=localStorage.getItem('taxCalcFinal');return s?JSON.parse(s):JSON.parse(JSON.stringify(DEFAULT_CONFIG));}catch(e){return JSON.parse(JSON.stringify(DEFAULT_CONFIG));}}
+function saveConfig(cfg){localStorage.setItem('taxCalcFinal',JSON.stringify(cfg));}
+let CFG=loadConfig();
+let S={code:'',cat:'',identity:'',taxmode:'',union:'',treaty:null};
+
+function fmt(n){return 'NT$ '+Math.round(Math.abs(n)).toLocaleString('zh-TW');}
+function act(id,on){document.getElementById(id).classList.toggle('inactive',!on);}
+
+function initContentSelect(){
+  const sel=document.getElementById('sel-content');sel.innerHTML='<option value="">— 請選擇 —</option>';
+  const groups={};CFG.items.forEach(item=>{const key=item.cat+'|'+item.code;if(!groups[key])groups[key]={cat:item.cat,code:item.code,items:[]};groups[key].items.push(item.name);});
+  Object.values(groups).forEach(g=>{const og=document.createElement('optgroup');og.label=g.cat+' ('+g.code+')';g.items.forEach(name=>{const o=document.createElement('option');o.value=name+'|'+g.cat+'|'+g.code;o.textContent=name;og.appendChild(o);});sel.appendChild(og);});
+}
+
+function initCountrySelect(){
+  const sel=document.getElementById('sel-country');sel.innerHTML='<option value="">— 請選擇國籍 —</option>';
+  CFG.treatyCountries.forEach(c=>{const o=document.createElement('option');o.value='treaty:'+c;o.textContent=c;sel.appendChild(o);});
+  const other=document.createElement('option');other.value='no-treaty';other.textContent='其他國家';sel.appendChild(other);
+}
+
+function onContent(){
+  const v=document.getElementById('sel-content').value;document.getElementById('auto-info').classList.toggle('hidden',!v);
+  if(!v){resetFrom(2);return;}const p=v.split('|');S.cat=p[1];S.code=p[2];
+  document.getElementById('disp-cat').textContent=S.cat;document.getElementById('disp-code').textContent=S.code;
+  resetFrom(2);act('blk2',true);
+}
+
+function onIdentity(){
+  S.identity=document.querySelector('input[name=identity]:checked').value;
+  document.getElementById('checklist-183').classList.toggle('hidden',S.identity!=='foreign183');
+  document.getElementById('chk1').checked=false;document.getElementById('chk2').checked=false;
+  const showTreaty=S.identity==='foreign'&&S.code==='53';
+  document.getElementById('treaty-wrap').classList.toggle('hidden',!showTreaty);
+  document.getElementById('disp-treaty').classList.add('hidden');
+  if(showTreaty)document.getElementById('sel-country').value='';
+  S.treaty=null;resetFrom(3);
+  if(S.identity==='local')goStep3();
+  else if(S.identity==='foreign'&&S.code!=='53')goStep3();
+}
+
+function onCheck(){const ok=document.getElementById('chk1').checked&&document.getElementById('chk2').checked;resetFrom(3);if(ok)goStep3();}
+
+function onCountry(){
+  const v=document.getElementById('sel-country').value;if(!v)return;S.treaty=(v!=='no-treaty');
+  const el=document.getElementById('disp-treaty');el.classList.remove('hidden');
+  el.textContent=S.treaty?'✓ 適用租稅協定，權利金稅率 10%':'✗ 非租稅協定國家，稅率 20%';
+  resetFrom(3);act('blk3',true);
+}
+
+function goStep3(){if(S.code==='91'){S.taxmode='normal';act('blk3',false);goStep4();return;}act('blk3',true);}
+function onTaxMode(){S.taxmode=document.querySelector('input[name=taxmode]:checked').value;resetFrom(4);goStep4();}
+
+function goStep4(){
+  const isLocal=(S.identity==='local'||S.identity==='foreign183');
+  const needUnion=isLocal&&(S.code==='50'||S.code==='9A'||S.code==='9B');
+  if(needUnion){act('blk4',true);}else{S.union='no';act('blk4',false);goStep5();}
+}
+
+function onUnion(){S.union=document.querySelector('input[name=union]:checked').value;resetFrom(5);goStep5();}
+
+function goStep5(){
+  document.getElementById('amt-label').textContent=S.taxmode==='net'?'輸入實拿金額':'輸入所得額';
+  act('blk5',true);document.getElementById('inp-amt').value='';
+  document.getElementById('result-area').classList.add('hidden');document.getElementById('result-placeholder').classList.remove('hidden');
+}
+
+function resetFrom(step){
+  if(step<=3){S.taxmode='';document.querySelectorAll('input[name=taxmode]').forEach(r=>r.checked=false);act('blk3',false);}
+  if(step<=4){S.union='';document.querySelectorAll('input[name=union]').forEach(r=>r.checked=false);act('blk4',false);}
+  if(step<=5){act('blk5',false);document.getElementById('result-area').classList.add('hidden');document.getElementById('result-placeholder').classList.remove('hidden');}
+}
+
+function calculate(){
+  const raw=parseFloat(document.getElementById('inp-amt').value);
+  if(!raw||raw<=0){document.getElementById('result-area').classList.add('hidden');document.getElementById('result-placeholder').classList.remove('hidden');return;}
+  const isLocal=(S.identity==='local'||S.identity==='foreign183');
+  const isForeign=S.identity==='foreign';
+  const isNet=S.taxmode==='net';const hasUnion=S.union==='yes';const code=S.code;
+  const NHIB=CFG.nhib/100;
+  const salaryThr=CFG.salaryThreshold;const salaryRate=CFG.salaryRate/100;
+  const laborThr=CFG.laborThreshold;const laborRate=CFG.laborRate/100;
+  const nhiLaborThr=CFG.nhiLaborThreshold;const nhiSalaryThr=CFG.nhiSalaryThreshold;
+  let company,taxAmt,nhiAmt=0,net,notes=[];
+
+  if(isForeign){
+    if(code==='50'){
+      if(!isNet){const rate=raw<=44250?0.06:0.18;company=raw;taxAmt=Math.round(raw*rate);notes.push(raw<=44250?'稅率6%（≤44,250）':'稅率18%（>44,250）');}
+      else{const boundary=Math.round(44250*(1-0.06));const rate=raw<=boundary?0.06:0.18;company=Math.round(raw/(1-rate));taxAmt=Math.round(company*rate);notes.push(rate===0.06?'稅率6%（≤44,250）':'稅率18%（>44,250）');}
+    } else if(code==='9A'){
+      if(!isNet){company=raw;taxAmt=Math.round(raw*0.20);}
+      else{company=Math.round(raw/(1-0.20));taxAmt=Math.round(company*0.20);}
+      notes.push('稅率20%');
+    } else if(code==='9B'){
+      if(!isNet){company=raw;if(raw<=5000){taxAmt=0;notes.push('單次給付≤5,000，免扣繳');}else{taxAmt=Math.round(raw*0.20);notes.push('單次給付>5,000，稅率20%');}}
+      else{if(raw<=5000){company=raw;taxAmt=0;notes.push('單次給付≤5,000，免扣繳');}else{company=Math.round(raw/(1-0.20));taxAmt=Math.round(company*0.20);notes.push('稅率20%');}}
+    } else if(code==='53'){
+      const rate=S.treaty?0.10:0.20;
+      if(!isNet){company=raw;taxAmt=Math.round(raw*rate);}
+      else{company=Math.round(raw/(1-rate));taxAmt=Math.round(company*rate);}
+      notes.push(S.treaty?'租稅協定稅率10%':'無租稅協定稅率20%');
+    } else if(code==='91'){
+      company=raw;taxAmt=Math.round(raw*0.20);notes.push('稅率20%');
+    }
+    net=company-taxAmt;
+  } else {
+    let taxRate,taxThreshold,nhiThreshold;
+    if(code==='50'){taxRate=salaryRate;taxThreshold=salaryThr;nhiThreshold=nhiSalaryThr;}
+    else if(code==='9A'||code==='9B'){taxRate=laborRate;taxThreshold=laborThr;nhiThreshold=nhiLaborThr;}
+    else{taxRate=laborRate;taxThreshold=laborThr;nhiThreshold=999999999;}
+    const nhiRate=hasUnion?0:NHIB;
+
+    if(!isNet){
+      company=raw;
+      taxAmt=raw>=taxThreshold?Math.round(raw*taxRate):0;
+      nhiAmt=(nhiRate>0&&raw>=nhiThreshold)?Math.round(raw*nhiRate):0;
+    } else {
+      if(code==='50'){
+        if(raw<nhiThreshold){company=raw;}
+        else{const mid=Math.round(taxThreshold*(1-nhiRate));if(raw<mid){company=Math.round(raw/(1-nhiRate));}else{company=Math.round(raw/(1-taxRate-nhiRate));}}
+      } else if(code==='9A'||code==='9B'){
+        if(hasUnion){if(raw<taxThreshold){company=raw;}else{const c=Math.round(raw/(1-taxRate));company=c>=taxThreshold?c:raw;}}
+        else{const nhiLimit=Math.round(nhiThreshold*(1-nhiRate));if(raw<nhiLimit){company=raw;}else{const c=Math.round(raw/(1-taxRate-nhiRate));company=c>=taxThreshold?c:raw;}}
+      } else {
+        if(raw<taxThreshold){company=raw;}else{const c=Math.round(raw/(1-taxRate));company=c>=taxThreshold?c:raw;}
+      }
+      taxAmt=company>=taxThreshold?Math.round(company*taxRate):0;
+      nhiAmt=(nhiRate>0&&company>=nhiThreshold)?Math.round(company*nhiRate):0;
+    }
+    net=company-taxAmt-nhiAmt;
+    if(taxAmt>0)notes.push('扣繳稅率'+(taxRate*100).toFixed(0)+'%');else notes.push('未達起扣標準，免扣繳');
+    if(nhiRate>0){nhiAmt>0?notes.push('補充保費率'+CFG.nhib+'%'):notes.push('未達補充保費起扣標準');}
+    if(hasUnion)notes.push('有工會，免扣補充保費');
+  }
+
+  const extraCost=company-net;
+  document.getElementById('lbl-company').textContent='公司帳列的成本金額：填入報支單';
+  document.getElementById('lbl-net').textContent=isNet?'驗算後所得人實拿的金額':'給付淨額';
+  document.getElementById('r-company').textContent=fmt(company);
+  document.getElementById('r-tax').textContent=fmt(taxAmt);
+  document.getElementById('r-nhi').textContent=fmt(nhiAmt);
+  document.getElementById('r-extra').textContent='NT$ '+extraCost.toLocaleString('zh-TW');
+  document.getElementById('r-net').textContent=fmt(net);
+  document.getElementById('r-note').textContent=notes.join('　·　');
+  document.getElementById('result-placeholder').classList.add('hidden');
+  document.getElementById('result-area').classList.remove('hidden');
+}
+
+function openSettings(){document.getElementById('settings-overlay').classList.remove('hidden');document.getElementById('pw-section').classList.remove('hidden');document.getElementById('tab-nav').classList.add('hidden');document.getElementById('settings-content').classList.add('hidden');document.getElementById('pw-input').value='';document.getElementById('pw-err').classList.add('hidden');}
+function closeSettings(){document.getElementById('settings-overlay').classList.add('hidden');}
+function verifyPw(){const pw=document.getElementById('pw-input').value;if(pw===CFG.password){document.getElementById('pw-section').classList.add('hidden');document.getElementById('tab-nav').classList.remove('hidden');document.getElementById('settings-content').classList.remove('hidden');loadSettingsUI();showTab('tab-rates');}else{document.getElementById('pw-err').classList.remove('hidden');}}
+function showTab(id){['tab-rates','tab-items','tab-treaty','tab-pw'].forEach(t=>{document.getElementById(t).classList.toggle('hidden',t!==id);});document.querySelectorAll('.tab').forEach((t,i)=>{const ids=['tab-rates','tab-items','tab-treaty','tab-pw'];t.classList.toggle('active',ids[i]===id);});}
+function loadSettingsUI(){document.getElementById('cfg-nhib').value=CFG.nhib;document.getElementById('cfg-nhi-labor').value=CFG.nhiLaborThreshold;document.getElementById('cfg-nhi-salary').value=CFG.nhiSalaryThreshold;document.getElementById('cfg-salary-threshold').value=CFG.salaryThreshold;document.getElementById('cfg-salary-rate').value=CFG.salaryRate;document.getElementById('cfg-labor-threshold').value=CFG.laborThreshold;document.getElementById('cfg-labor-rate').value=CFG.laborRate;renderItems();renderTreaty();}
+function saveRates(){CFG.nhib=parseFloat(document.getElementById('cfg-nhib').value);CFG.nhiLaborThreshold=parseInt(document.getElementById('cfg-nhi-labor').value);CFG.nhiSalaryThreshold=parseInt(document.getElementById('cfg-nhi-salary').value);CFG.salaryThreshold=parseInt(document.getElementById('cfg-salary-threshold').value);CFG.salaryRate=parseFloat(document.getElementById('cfg-salary-rate').value);CFG.laborThreshold=parseInt(document.getElementById('cfg-labor-threshold').value);CFG.laborRate=parseFloat(document.getElementById('cfg-labor-rate').value);saveConfig(CFG);alert('稅率參數已儲存');}
+function renderItems(){const list=document.getElementById('items-list');list.innerHTML='';CFG.items.forEach((item,i)=>{const row=document.createElement('div');row.className='item-row';row.innerHTML=`<input type="text" value="${item.name}" placeholder="費用內容名稱" onchange="CFG.items[${i}].name=this.value"><select onchange="updateItemCatCode(${i},this.value)"><option value="薪資所得|50" ${item.code==='50'?'selected':''}>薪資所得 50</option><option value="執行業務|9A" ${item.code==='9A'?'selected':''}>執行業務 9A</option><option value="執行業務|9B" ${item.code==='9B'?'selected':''}>執行業務 9B</option><option value="權利金|53" ${item.code==='53'?'selected':''}>權利金 53</option><option value="機會中獎|91" ${item.code==='91'?'selected':''}>機會中獎 91</option></select><button class="btn-del" onclick="deleteItem(${i})">刪除</button>`;list.appendChild(row);});}
+function updateItemCatCode(i,val){const p=val.split('|');CFG.items[i].cat=p[0];CFG.items[i].code=p[1];}
+function addItem(){CFG.items.push({name:'',cat:'薪資所得',code:'50'});renderItems();}
+function deleteItem(i){CFG.items.splice(i,1);renderItems();}
+function saveItems(){saveConfig(CFG);initContentSelect();alert('費用內容已儲存');}
+function renderTreaty(){const list=document.getElementById('treaty-list');list.innerHTML='';CFG.treatyCountries.forEach((c,i)=>{const row=document.createElement('div');row.className='item-row';row.innerHTML=`<input type="text" value="${c}" placeholder="國家名稱" onchange="CFG.treatyCountries[${i}]=this.value" style="flex:1"><button class="btn-del" onclick="deleteTreaty(${i})">刪除</button>`;list.appendChild(row);});}
+function addTreaty(){CFG.treatyCountries.push('');renderTreaty();}
+function deleteTreaty(i){CFG.treatyCountries.splice(i,1);renderTreaty();}
+function saveTreaty(){CFG.treatyCountries=CFG.treatyCountries.filter(c=>c.trim()!=='');saveConfig(CFG);initCountrySelect();alert('租稅協定國家已儲存');}
+function changePw(){const p1=document.getElementById('new-pw1').value;const p2=document.getElementById('new-pw2').value;const errEl=document.getElementById('pw-change-err');if(!p1){errEl.textContent='請輸入新密碼';errEl.classList.remove('hidden');return;}if(p1!==p2){errEl.textContent='兩次密碼不一致';errEl.classList.remove('hidden');return;}CFG.password=p1;saveConfig(CFG);errEl.classList.add('hidden');document.getElementById('new-pw1').value='';document.getElementById('new-pw2').value='';alert('密碼已修改成功');}
+
+initContentSelect();
+initCountrySelect();
+</script>
+</body>
+</html>
