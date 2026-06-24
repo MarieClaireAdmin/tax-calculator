@@ -6,6 +6,32 @@
   "salaryRate": 5,
   "laborThreshold": 20010,
   "laborRate": 10,
+  "incomeTypes": [
+    {
+      "cat": "薪資所得",
+      "code": "50"
+    },
+    {
+      "cat": "執行業務",
+      "code": "9A"
+    },
+    {
+      "cat": "執行業務",
+      "code": "9B"
+    },
+    {
+      "cat": "權利金",
+      "code": "53"
+    },
+    {
+      "cat": "機會中獎",
+      "code": "91"
+    },
+    {
+      "cat": "其他所得",
+      "code": "92"
+    }
+  ],
   "items": [
     {
       "name": "彩妝",
