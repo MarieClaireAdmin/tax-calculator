@@ -321,6 +321,7 @@ select:focus,input[type=number]:focus{border-color:var(--ink)}
         <div class="tab" onclick="showTab('tab-items')">費用內容</div>
         <div class="tab" onclick="showTab('tab-treaty')">租稅協定國家</div>
         <div class="tab" onclick="showTab('tab-pw')">修改密碼</div>
+        <div class="tab" onclick="showTab('tab-github')">GitHub 設定</div>
       </div>
     </div>
     <div id="settings-content" class="hidden">
@@ -370,6 +371,23 @@ select:focus,input[type=number]:focus{border-color:var(--ink)}
           </div>
         </div>
       </div>
+        <div id="tab-github" class="hidden">
+          <div class="settings-section" style="border:none;margin:0;padding:0">
+            <h3>GitHub 連線設定</h3>
+            <div style="font-size:13px;color:var(--ink-dim);margin-bottom:16px;line-height:1.8">設定後，所有財務設定將儲存到 GitHub，所有人開啟工具都能看到最新設定。</div>
+            <div class="settings-row" style="flex-direction:column;align-items:flex-start;gap:6px">
+              <label>GitHub Token</label>
+              <input type="password" id="cfg-github-token" placeholder="ghp_xxxxxxxxxxxxxxxx" style="width:100%;margin-top:0;font-family:monospace">
+            </div>
+            <div style="font-size:12px;color:var(--ink-dim);margin-top:8px;line-height:1.8">
+              Token 只存在這台電腦的瀏覽器裡，不會上傳到任何地方。<br>
+              每台需要修改設定的電腦都需要輸入一次。
+            </div>
+            <div class="pw-err hidden" id="github-err"></div>
+            <button class="btn-save" onclick="saveGithubToken()" style="margin-top:16px">儲存 Token</button>
+            <div id="github-status" style="font-size:13px;margin-top:12px;color:var(--ink-mid)"></div>
+          </div>
+        </div>
       <div class="settings-footer">
         <button class="btn-close" onclick="closeSettings()">關閉設定</button>
       </div>
@@ -406,8 +424,76 @@ const DEFAULT_CONFIG={
   treatyCountries:['澳大利亞','奧地利','比利時','加拿大','捷克','丹麥','法國','德國','匈牙利','印尼','以色列','義大利','日本','吉里巴斯','盧森堡','馬來西亞','荷蘭','紐西蘭','北馬其頓','巴拉圭','塞內加爾','新加坡','斯洛伐克','南非','史瓦帝尼','瑞典','瑞士','英國','越南']
 };
 
-function loadConfig(){try{const s=localStorage.getItem('taxCalcFinal');return s?JSON.parse(s):JSON.parse(JSON.stringify(DEFAULT_CONFIG));}catch(e){return JSON.parse(JSON.stringify(DEFAULT_CONFIG));}}
+// GitHub 設定
+const GITHUB_OWNER='MarieClaireAdmin';
+const GITHUB_REPO='tax-calculator';
+const GITHUB_FILE='config.json';
+const GITHUB_BRANCH='main';
+
+function getToken(){return localStorage.getItem('ghToken')||'';}
+
+async function loadConfigFromGitHub(){
+  try{
+    const url=`https://raw.githubusercontent.com/${GITHUB_OWNER}/${GITHUB_REPO}/${GITHUB_BRANCH}/${GITHUB_FILE}?t=${Date.now()}`;
+    const res=await fetch(url);
+    if(res.ok){
+      const data=await res.json();
+      // merge with defaults to ensure all keys exist
+      return Object.assign({},JSON.parse(JSON.stringify(DEFAULT_CONFIG)),data);
+    }
+  }catch(e){}
+  return JSON.parse(JSON.stringify(DEFAULT_CONFIG));
+}
+
+async function saveConfigToGitHub(cfg){
+  const token=getToken();
+  if(!token){
+    alert('請先在「GitHub 設定」分頁輸入 GitHub Token，才能儲存設定。');
+    return false;
+  }
+  try{
+    // get current file SHA
+    const getRes=await fetch(`https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${GITHUB_FILE}`,{
+      headers:{'Authorization':`token ${token}`,'Accept':'application/vnd.github.v3+json'}
+    });
+    let sha='';
+    if(getRes.ok){const d=await getRes.json();sha=d.sha;}
+    // save config without password field for security
+    const cfgToSave={...cfg};
+    delete cfgToSave.password;
+    const body={message:'Update config',content:btoa(unescape(encodeURIComponent(JSON.stringify(cfgToSave,null,2)))),branch:GITHUB_BRANCH};
+    if(sha) body.sha=sha;
+    const putRes=await fetch(`https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${GITHUB_FILE}`,{
+      method:'PUT',
+      headers:{'Authorization':`token ${token}`,'Accept':'application/vnd.github.v3+json','Content-Type':'application/json'},
+      body:JSON.stringify(body)
+    });
+    if(putRes.ok){return true;}
+    else{
+      const err=await putRes.json();
+      alert('儲存失敗：'+JSON.stringify(err.message));
+      return false;
+    }
+  }catch(e){
+    alert('儲存失敗，請確認 Token 是否正確：'+e.message);
+    return false;
+  }
+}
+
+function loadConfig(){
+  try{const s=localStorage.getItem('taxCalcFinal');return s?JSON.parse(s):JSON.parse(JSON.stringify(DEFAULT_CONFIG));}
+  catch(e){return JSON.parse(JSON.stringify(DEFAULT_CONFIG));}
+}
 function saveConfig(cfg){localStorage.setItem('taxCalcFinal',JSON.stringify(cfg));}
+
+function saveGithubToken(){
+  const t=document.getElementById('cfg-github-token').value.trim();
+  if(!t){document.getElementById('github-err').textContent='請輸入 Token';document.getElementById('github-err').classList.remove('hidden');return;}
+  localStorage.setItem('ghToken',t);
+  document.getElementById('github-err').classList.add('hidden');
+  document.getElementById('github-status').textContent='✓ Token 已儲存';
+  alert('Token 已儲存！現在儲存設定時會自動同步到 GitHub。');
+}
 let CFG=loadConfig();
 let S={code:'',cat:'',identity:'',taxmode:'',union:'',treaty:null};
 
@@ -556,22 +642,31 @@ function calculate(){
 function openSettings(){document.getElementById('settings-overlay').classList.remove('hidden');document.getElementById('pw-section').classList.remove('hidden');document.getElementById('tab-nav').classList.add('hidden');document.getElementById('settings-content').classList.add('hidden');document.getElementById('pw-input').value='';document.getElementById('pw-err').classList.add('hidden');}
 function closeSettings(){document.getElementById('settings-overlay').classList.add('hidden');}
 function verifyPw(){const pw=document.getElementById('pw-input').value;if(pw===CFG.password){document.getElementById('pw-section').classList.add('hidden');document.getElementById('tab-nav').classList.remove('hidden');document.getElementById('settings-content').classList.remove('hidden');loadSettingsUI();showTab('tab-rates');}else{document.getElementById('pw-err').classList.remove('hidden');}}
-function showTab(id){['tab-rates','tab-items','tab-treaty','tab-pw'].forEach(t=>{document.getElementById(t).classList.toggle('hidden',t!==id);});document.querySelectorAll('.tab').forEach((t,i)=>{const ids=['tab-rates','tab-items','tab-treaty','tab-pw'];t.classList.toggle('active',ids[i]===id);});}
-function loadSettingsUI(){document.getElementById('cfg-nhib').value=CFG.nhib;document.getElementById('cfg-nhi-labor').value=CFG.nhiLaborThreshold;document.getElementById('cfg-nhi-salary').value=CFG.nhiSalaryThreshold;document.getElementById('cfg-salary-threshold').value=CFG.salaryThreshold;document.getElementById('cfg-salary-rate').value=CFG.salaryRate;document.getElementById('cfg-labor-threshold').value=CFG.laborThreshold;document.getElementById('cfg-labor-rate').value=CFG.laborRate;renderItems();renderTreaty();}
-function saveRates(){CFG.nhib=parseFloat(document.getElementById('cfg-nhib').value);CFG.nhiLaborThreshold=parseInt(document.getElementById('cfg-nhi-labor').value);CFG.nhiSalaryThreshold=parseInt(document.getElementById('cfg-nhi-salary').value);CFG.salaryThreshold=parseInt(document.getElementById('cfg-salary-threshold').value);CFG.salaryRate=parseFloat(document.getElementById('cfg-salary-rate').value);CFG.laborThreshold=parseInt(document.getElementById('cfg-labor-threshold').value);CFG.laborRate=parseFloat(document.getElementById('cfg-labor-rate').value);saveConfig(CFG);alert('稅率參數已儲存');}
+function showTab(id){['tab-rates','tab-items','tab-treaty','tab-pw','tab-github'].forEach(t=>{document.getElementById(t).classList.toggle('hidden',t!==id);});document.querySelectorAll('.tab').forEach((t,i)=>{const ids=['tab-rates','tab-items','tab-treaty','tab-pw','tab-github'];t.classList.toggle('active',ids[i]===id);});}
+function loadSettingsUI(){document.getElementById('cfg-nhib').value=CFG.nhib;document.getElementById('cfg-nhi-labor').value=CFG.nhiLaborThreshold;document.getElementById('cfg-nhi-salary').value=CFG.nhiSalaryThreshold;document.getElementById('cfg-salary-threshold').value=CFG.salaryThreshold;document.getElementById('cfg-salary-rate').value=CFG.salaryRate;document.getElementById('cfg-labor-threshold').value=CFG.laborThreshold;document.getElementById('cfg-labor-rate').value=CFG.laborRate;renderItems();renderTreaty();const t=getToken();if(t)document.getElementById('cfg-github-token').value=t;const st=document.getElementById('github-status');if(t){st.textContent='✓ Token 已設定';}else{st.textContent='尚未設定 Token，儲存設定時將無法同步到 GitHub';}}
+async function saveRates(){CFG.nhib=parseFloat(document.getElementById('cfg-nhib').value);CFG.nhiLaborThreshold=parseInt(document.getElementById('cfg-nhi-labor').value);CFG.nhiSalaryThreshold=parseInt(document.getElementById('cfg-nhi-salary').value);CFG.salaryThreshold=parseInt(document.getElementById('cfg-salary-threshold').value);CFG.salaryRate=parseFloat(document.getElementById('cfg-salary-rate').value);CFG.laborThreshold=parseInt(document.getElementById('cfg-labor-threshold').value);CFG.laborRate=parseFloat(document.getElementById('cfg-labor-rate').value);saveConfig(CFG);const ok=await saveConfigToGitHub(CFG);if(ok)alert('稅率參數已儲存並同步到 GitHub！');}
 function renderItems(){const list=document.getElementById('items-list');list.innerHTML='';CFG.items.forEach((item,i)=>{const row=document.createElement('div');row.className='item-row';row.innerHTML=`<input type="text" value="${item.name}" placeholder="費用內容名稱" onchange="CFG.items[${i}].name=this.value"><select onchange="updateItemCatCode(${i},this.value)"><option value="薪資所得|50" ${item.code==='50'?'selected':''}>薪資所得 50</option><option value="執行業務|9A" ${item.code==='9A'?'selected':''}>執行業務 9A</option><option value="執行業務|9B" ${item.code==='9B'?'selected':''}>執行業務 9B</option><option value="權利金|53" ${item.code==='53'?'selected':''}>權利金 53</option><option value="機會中獎|91" ${item.code==='91'?'selected':''}>機會中獎 91</option></select><button class="btn-del" onclick="deleteItem(${i})">刪除</button>`;list.appendChild(row);});}
 function updateItemCatCode(i,val){const p=val.split('|');CFG.items[i].cat=p[0];CFG.items[i].code=p[1];}
 function addItem(){CFG.items.push({name:'',cat:'薪資所得',code:'50'});renderItems();}
 function deleteItem(i){CFG.items.splice(i,1);renderItems();}
-function saveItems(){saveConfig(CFG);initContentSelect();alert('費用內容已儲存');}
+async function saveItems(){saveConfig(CFG);initContentSelect();const ok=await saveConfigToGitHub(CFG);if(ok)alert('費用內容已儲存並同步到 GitHub！');}
 function renderTreaty(){const list=document.getElementById('treaty-list');list.innerHTML='';CFG.treatyCountries.forEach((c,i)=>{const row=document.createElement('div');row.className='item-row';row.innerHTML=`<input type="text" value="${c}" placeholder="國家名稱" onchange="CFG.treatyCountries[${i}]=this.value" style="flex:1"><button class="btn-del" onclick="deleteTreaty(${i})">刪除</button>`;list.appendChild(row);});}
 function addTreaty(){CFG.treatyCountries.push('');renderTreaty();}
 function deleteTreaty(i){CFG.treatyCountries.splice(i,1);renderTreaty();}
-function saveTreaty(){CFG.treatyCountries=CFG.treatyCountries.filter(c=>c.trim()!=='');saveConfig(CFG);initCountrySelect();alert('租稅協定國家已儲存');}
+async function saveTreaty(){CFG.treatyCountries=CFG.treatyCountries.filter(c=>c.trim()!=='');saveConfig(CFG);initCountrySelect();const ok=await saveConfigToGitHub(CFG);if(ok)alert('租稅協定國家已儲存並同步到 GitHub！');}
 function changePw(){const p1=document.getElementById('new-pw1').value;const p2=document.getElementById('new-pw2').value;const errEl=document.getElementById('pw-change-err');if(!p1){errEl.textContent='請輸入新密碼';errEl.classList.remove('hidden');return;}if(p1!==p2){errEl.textContent='兩次密碼不一致';errEl.classList.remove('hidden');return;}CFG.password=p1;saveConfig(CFG);errEl.classList.add('hidden');document.getElementById('new-pw1').value='';document.getElementById('new-pw2').value='';alert('密碼已修改成功');}
 
-initContentSelect();
-initCountrySelect();
+// 啟動時從 GitHub 載入最新設定
+(async()=>{
+  const ghCfg=await loadConfigFromGitHub();
+  // merge: keep local password, use GitHub for everything else
+  const localPw=CFG.password;
+  CFG=ghCfg;
+  CFG.password=localPw;
+  saveConfig(CFG);
+  initContentSelect();
+  initCountrySelect();
+})();
 </script>
 </body>
 </html>
