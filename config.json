@@ -219,6 +219,16 @@
       "name": "抽獎之獎金及獎品",
       "cat": "機會中獎",
       "code": "91"
+    },
+    {
+      "name": "Similarweb/SocialBakers費用",
+      "cat": "權利金",
+      "code": "53"
+    },
+    {
+      "name": "各式AI工具費用",
+      "cat": "其他所得",
+      "code": "92"
     }
   ],
   "treatyCountries": [
