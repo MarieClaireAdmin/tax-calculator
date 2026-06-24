@@ -591,7 +591,8 @@ function calculate(){
   let company,taxAmt,nhiAmt=0,net,notes=[];
 
   // Check if this is a custom income type
-  const customType = CFG.incomeTypes ? CFG.incomeTypes.find(t=>t.code===code&&!t.builtin) : null;
+  const BUILTIN_CODES=['50','9A','9B','53','91'];
+  const customType = CFG.incomeTypes ? CFG.incomeTypes.find(t=>t.code===code&&!BUILTIN_CODES.includes(t.code)) : null;
 
   if(customType){
     // Custom income type calculation
@@ -710,7 +711,8 @@ function renderIncomeTypes(){
   CFG.incomeTypes.forEach((t,i)=>{
     const row=document.createElement('div');
     row.style.cssText='margin-bottom:14px;padding:14px;border:1px solid var(--border);background:var(--bg)';
-    if(t.builtin){
+    const BUILTIN=['50','9A','9B','53','91'];
+    if(BUILTIN.includes(t.code)){
       row.innerHTML=`<div style="display:flex;align-items:center;gap:10px"><span style="font-size:14px;font-weight:500;color:var(--ink)">${t.cat} (${t.code})</span><span style="font-size:11px;color:var(--ink-dim);letter-spacing:0.08em;text-transform:uppercase">內建・規則固定</span></div>`;
     } else {
       row.innerHTML=`
@@ -742,7 +744,7 @@ function renderIncomeTypes(){
   });
 }
 function addIncomeType(){CFG.incomeTypes.push({cat:'',code:'',builtin:false,localTax:false,hasNhi:false,hasUnion:false,hasNetLocal:false,foreignRate:20,hasNetForeign:false});renderIncomeTypes();}
-function deleteIncomeType(i){if(CFG.incomeTypes[i].builtin){alert('內建所得類別不能刪除');return;}CFG.incomeTypes.splice(i,1);renderIncomeTypes();}
+function deleteIncomeType(i){const BUILTIN=['50','9A','9B','53','91'];if(BUILTIN.includes(CFG.incomeTypes[i].code)){alert('內建所得類別不能刪除');return;}CFG.incomeTypes.splice(i,1);renderIncomeTypes();}
 async function saveIncomeTypes(){CFG.incomeTypes=CFG.incomeTypes.filter(t=>t.cat.trim()!==''&&t.code.trim()!=='');saveConfig(CFG);renderIncomeTypes();renderItems();initContentSelect();const ok=await saveConfigToGitHub(CFG);if(ok)alert('所得類別已儲存並同步到 GitHub！');}
 function renderItems(){const list=document.getElementById('items-list');list.innerHTML='';CFG.items.forEach((item,i)=>{const row=document.createElement('div');row.className='item-row';row.innerHTML=`<input type="text" value="${item.name}" placeholder="費用內容名稱" onchange="CFG.items[${i}].name=this.value"><select onchange="updateItemCatCode(${i},this.value)">${getIncomeOptions(item.code)}</select><button class="btn-del" onclick="deleteItem(${i})">刪除</button>`;list.appendChild(row);});}
 function updateItemCatCode(i,val){const p=val.split('|');CFG.items[i].cat=p[0];CFG.items[i].code=p[1];}
