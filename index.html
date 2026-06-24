@@ -682,7 +682,7 @@ function calculate(){
     if(hasUnion)notes.push('有工會，免扣補充保費');
   }
 
-  const extraCost=company-net;
+  const extraCost=isNet?(company-net):0;
   document.getElementById('lbl-company').textContent='公司帳列的成本金額：填入報支單';
   document.getElementById('lbl-net').textContent=isNet?'驗算後所得人實拿的金額':'給付淨額';
   document.getElementById('r-company').textContent=fmt(company);
