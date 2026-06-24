@@ -212,6 +212,11 @@
       "name": "SocialBakers/SililarWeb使用費",
       "cat": "權利金",
       "code": "53"
+    },
+    {
+      "name": "AI工具費用",
+      "cat": "其他所得",
+      "code": "92"
     }
   ],
   "treatyCountries": [
