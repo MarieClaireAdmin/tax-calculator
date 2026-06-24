@@ -407,11 +407,11 @@ const DEFAULT_CONFIG={
   password:'finance2026',nhib:2.11,nhiLaborThreshold:20000,nhiSalaryThreshold:29500,
   salaryThreshold:90501,salaryRate:5,laborThreshold:20010,laborRate:10,
   incomeTypes:[
-    {cat:'薪資所得',code:'50'},
-    {cat:'執行業務',code:'9A'},
-    {cat:'執行業務',code:'9B'},
-    {cat:'權利金',code:'53'},
-    {cat:'機會中獎',code:'91'}
+    {cat:'薪資所得',code:'50',builtin:true},
+    {cat:'執行業務',code:'9A',builtin:true},
+    {cat:'執行業務',code:'9B',builtin:true},
+    {cat:'權利金',code:'53',builtin:true},
+    {cat:'機會中獎',code:'91',builtin:true}
   ],
   items:[
     {name:'彩妝',cat:'薪資所得',code:'50'},{name:'造型',cat:'薪資所得',code:'50'},
@@ -590,7 +590,48 @@ function calculate(){
   const nhiLaborThr=CFG.nhiLaborThreshold;const nhiSalaryThr=CFG.nhiSalaryThreshold;
   let company,taxAmt,nhiAmt=0,net,notes=[];
 
-  if(isForeign){
+  // Check if this is a custom income type
+  const customType = CFG.incomeTypes ? CFG.incomeTypes.find(t=>t.code===code&&!t.builtin) : null;
+
+  if(customType){
+    // Custom income type calculation
+    if(isForeign){
+      const rate=(customType.foreignRate||20)/100;
+      if(!isNet){
+        company=raw;taxAmt=Math.round(raw*rate);
+      } else if(customType.hasNetForeign){
+        company=Math.round(raw/(1-rate));taxAmt=Math.round(company*rate);
+      } else {
+        company=raw;taxAmt=Math.round(raw*rate);
+      }
+      nhiAmt=0;net=company-taxAmt;
+      notes.push('外國人稅率'+(rate*100).toFixed(0)+'%');
+    } else {
+      // Local person
+      if(!customType.localTax){
+        company=raw;taxAmt=0;nhiAmt=0;net=raw;
+        notes.push('本國人免扣繳');
+      } else {
+        const taxRate=(customType.localRate||10)/100;
+        const taxThreshold=customType.localThreshold||20010;
+        const nhiRate=(customType.hasNhi&&!hasUnion)?NHIB:0;
+        const nhiThreshold=customType.hasNhi?CFG.nhiLaborThreshold:999999999;
+        if(!isNet){
+          company=raw;
+          taxAmt=raw>=taxThreshold?Math.round(raw*taxRate):0;
+          nhiAmt=(nhiRate>0&&raw>=nhiThreshold)?Math.round(raw*nhiRate):0;
+        } else {
+          if(raw<taxThreshold){company=raw;}
+          else{const c=Math.round(raw/(1-taxRate-(nhiRate||0)));company=c>=taxThreshold?c:raw;}
+          taxAmt=company>=taxThreshold?Math.round(company*taxRate):0;
+          nhiAmt=(nhiRate>0&&company>=nhiThreshold)?Math.round(company*nhiRate):0;
+        }
+        net=company-taxAmt-nhiAmt;
+        if(taxAmt>0)notes.push('扣繳稅率'+(taxRate*100).toFixed(0)+'%');
+        else notes.push('未達起扣標準，免扣繳');
+      }
+    }
+  } else if(isForeign){
     if(code==='50'){
       if(!isNet){const rate=raw<=44250?0.06:0.18;company=raw;taxAmt=Math.round(raw*rate);notes.push(raw<=44250?'稅率6%（≤44,250）':'稅率18%（>44,250）');}
       else{const boundary=Math.round(44250*(1-0.06));const rate=raw<=boundary?0.06:0.18;company=Math.round(raw/(1-rate));taxAmt=Math.round(company*rate);notes.push(rate===0.06?'稅率6%（≤44,250）':'稅率18%（>44,250）');}
@@ -610,7 +651,7 @@ function calculate(){
       company=raw;taxAmt=Math.round(raw*0.20);notes.push('稅率20%');
     }
     net=company-taxAmt;
-  } else {
+  } else if(!customType) {
     let taxRate,taxThreshold,nhiThreshold;
     if(code==='50'){taxRate=salaryRate;taxThreshold=salaryThr;nhiThreshold=nhiSalaryThr;}
     else if(code==='9A'||code==='9B'){taxRate=laborRate;taxThreshold=laborThr;nhiThreshold=nhiLaborThr;}
@@ -667,13 +708,41 @@ function renderIncomeTypes(){
   const list=document.getElementById('income-list');list.innerHTML='';
   if(!CFG.incomeTypes)CFG.incomeTypes=[];
   CFG.incomeTypes.forEach((t,i)=>{
-    const row=document.createElement('div');row.className='item-row';
-    row.innerHTML=`<input type="text" value="${t.cat}" placeholder="所得類別名稱" onchange="CFG.incomeTypes[${i}].cat=this.value" style="flex:2"><input type="text" value="${t.code}" placeholder="代碼" onchange="CFG.incomeTypes[${i}].code=this.value" style="flex:1;max-width:80px"><button class="btn-del" onclick="deleteIncomeType(${i})">刪除</button>`;
+    const row=document.createElement('div');
+    row.style.cssText='margin-bottom:14px;padding:14px;border:1px solid var(--border);background:var(--bg)';
+    if(t.builtin){
+      row.innerHTML=`<div style="display:flex;align-items:center;gap:10px"><span style="font-size:14px;font-weight:500;color:var(--ink)">${t.cat} (${t.code})</span><span style="font-size:11px;color:var(--ink-dim);letter-spacing:0.08em;text-transform:uppercase">內建・規則固定</span></div>`;
+    } else {
+      row.innerHTML=`
+        <div style="display:flex;gap:8px;margin-bottom:10px;align-items:center">
+          <input type="text" value="${t.cat||''}" placeholder="所得類別名稱" onchange="CFG.incomeTypes[${i}].cat=this.value" style="flex:2;margin-top:0;font-size:14px;padding:8px 12px">
+          <input type="text" value="${t.code||''}" placeholder="代碼" onchange="CFG.incomeTypes[${i}].code=this.value" style="flex:1;max-width:80px;margin-top:0;font-size:14px;padding:8px 12px">
+          <button class="btn-del" onclick="deleteIncomeType(${i})">刪除</button>
+        </div>
+        <div style="font-size:12px;color:var(--ink-dim);margin-bottom:8px;letter-spacing:0.06em;text-transform:uppercase">本國人規則</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;align-items:center">
+          <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--ink-mid)">
+            <input type="checkbox" ${t.localTax?'checked':''} onchange="CFG.incomeTypes[${i}].localTax=this.checked;renderIncomeTypes()"> 有扣繳
+          </label>
+          ${t.localTax?`
+          <input type="number" value="${t.localThreshold||20010}" placeholder="起扣點" onchange="CFG.incomeTypes[${i}].localThreshold=parseInt(this.value)" style="width:110px;margin-top:0;font-size:13px;padding:6px 10px">
+          <input type="number" value="${t.localRate||10}" placeholder="稅率%" onchange="CFG.incomeTypes[${i}].localRate=parseFloat(this.value)" style="width:80px;margin-top:0;font-size:13px;padding:6px 10px">
+          <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--ink-mid)"><input type="checkbox" ${t.hasNhi?'checked':''} onchange="CFG.incomeTypes[${i}].hasNhi=this.checked"> 補充保費</label>
+          <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--ink-mid)"><input type="checkbox" ${t.hasUnion?'checked':''} onchange="CFG.incomeTypes[${i}].hasUnion=this.checked"> 工會判斷</label>
+          <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--ink-mid)"><input type="checkbox" ${t.hasNetLocal?'checked':''} onchange="CFG.incomeTypes[${i}].hasNetLocal=this.checked"> 實拿版</label>
+          `:''}
+        </div>
+        <div style="font-size:12px;color:var(--ink-dim);margin-bottom:8px;letter-spacing:0.06em;text-transform:uppercase">外國人規則</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+          <input type="number" value="${t.foreignRate||20}" placeholder="外國人稅率%" onchange="CFG.incomeTypes[${i}].foreignRate=parseFloat(this.value)" style="width:120px;margin-top:0;font-size:13px;padding:6px 10px">
+          <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--ink-mid)"><input type="checkbox" ${t.hasNetForeign?'checked':''} onchange="CFG.incomeTypes[${i}].hasNetForeign=this.checked"> 實拿版</label>
+        </div>`;
+    }
     list.appendChild(row);
   });
 }
-function addIncomeType(){CFG.incomeTypes.push({cat:'',code:''});renderIncomeTypes();}
-function deleteIncomeType(i){CFG.incomeTypes.splice(i,1);renderIncomeTypes();}
+function addIncomeType(){CFG.incomeTypes.push({cat:'',code:'',builtin:false,localTax:false,hasNhi:false,hasUnion:false,hasNetLocal:false,foreignRate:20,hasNetForeign:false});renderIncomeTypes();}
+function deleteIncomeType(i){if(CFG.incomeTypes[i].builtin){alert('內建所得類別不能刪除');return;}CFG.incomeTypes.splice(i,1);renderIncomeTypes();}
 async function saveIncomeTypes(){CFG.incomeTypes=CFG.incomeTypes.filter(t=>t.cat.trim()!==''&&t.code.trim()!=='');saveConfig(CFG);renderIncomeTypes();renderItems();initContentSelect();const ok=await saveConfigToGitHub(CFG);if(ok)alert('所得類別已儲存並同步到 GitHub！');}
 function renderItems(){const list=document.getElementById('items-list');list.innerHTML='';CFG.items.forEach((item,i)=>{const row=document.createElement('div');row.className='item-row';row.innerHTML=`<input type="text" value="${item.name}" placeholder="費用內容名稱" onchange="CFG.items[${i}].name=this.value"><select onchange="updateItemCatCode(${i},this.value)">${getIncomeOptions(item.code)}</select><button class="btn-del" onclick="deleteItem(${i})">刪除</button>`;list.appendChild(row);});}
 function updateItemCatCode(i,val){const p=val.split('|');CFG.items[i].cat=p[0];CFG.items[i].code=p[1];}
