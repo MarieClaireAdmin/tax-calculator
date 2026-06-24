@@ -318,6 +318,7 @@ select:focus,input[type=number]:focus{border-color:var(--ink)}
       </div>
       <div id="tab-nav" class="tab-bar hidden">
         <div class="tab active" onclick="showTab('tab-rates')">稅率參數</div>
+        <div class="tab" onclick="showTab('tab-income')">所得類別</div>
         <div class="tab" onclick="showTab('tab-items')">費用內容</div>
         <div class="tab" onclick="showTab('tab-treaty')">租稅協定國家</div>
         <div class="tab" onclick="showTab('tab-pw')">修改密碼</div>
@@ -344,6 +345,12 @@ select:focus,input[type=number]:focus{border-color:var(--ink)}
             <div class="settings-row"><label>勞務扣繳稅率（%）</label><input type="number" id="cfg-labor-rate" step="0.1" min="0"></div>
           </div>
           <button class="btn-save" onclick="saveRates()">儲存稅率參數</button>
+        </div>
+        <div id="tab-income" class="hidden">
+          <div style="font-size:13px;color:var(--ink-dim);margin-bottom:16px;letter-spacing:0.04em">新增或刪除所得類別。修改後，費用內容的下拉選單會同步更新。</div>
+          <div id="income-list"></div>
+          <button class="btn-add" onclick="addIncomeType()">＋ 新增所得類別</button>
+          <br><button class="btn-save" onclick="saveIncomeTypes()">儲存所得類別</button>
         </div>
         <div id="tab-items" class="hidden">
           <div style="font-size:13px;color:var(--ink-dim);margin-bottom:16px;letter-spacing:0.04em">新增、修改或刪除費用內容項目</div>
@@ -399,6 +406,13 @@ select:focus,input[type=number]:focus{border-color:var(--ink)}
 const DEFAULT_CONFIG={
   password:'finance2026',nhib:2.11,nhiLaborThreshold:20000,nhiSalaryThreshold:29500,
   salaryThreshold:90501,salaryRate:5,laborThreshold:20010,laborRate:10,
+  incomeTypes:[
+    {cat:'薪資所得',code:'50'},
+    {cat:'執行業務',code:'9A'},
+    {cat:'執行業務',code:'9B'},
+    {cat:'權利金',code:'53'},
+    {cat:'機會中獎',code:'91'}
+  ],
   items:[
     {name:'彩妝',cat:'薪資所得',code:'50'},{name:'造型',cat:'薪資所得',code:'50'},
     {name:'髮型',cat:'薪資所得',code:'50'},{name:'攝影（網站及行銷活動）',cat:'薪資所得',code:'50'},
@@ -642,10 +656,26 @@ function calculate(){
 function openSettings(){document.getElementById('settings-overlay').classList.remove('hidden');document.getElementById('pw-section').classList.remove('hidden');document.getElementById('tab-nav').classList.add('hidden');document.getElementById('settings-content').classList.add('hidden');document.getElementById('pw-input').value='';document.getElementById('pw-err').classList.add('hidden');}
 function closeSettings(){document.getElementById('settings-overlay').classList.add('hidden');}
 function verifyPw(){const pw=document.getElementById('pw-input').value;if(pw===CFG.password){document.getElementById('pw-section').classList.add('hidden');document.getElementById('tab-nav').classList.remove('hidden');document.getElementById('settings-content').classList.remove('hidden');loadSettingsUI();showTab('tab-rates');}else{document.getElementById('pw-err').classList.remove('hidden');}}
-function showTab(id){['tab-rates','tab-items','tab-treaty','tab-pw','tab-github'].forEach(t=>{document.getElementById(t).classList.toggle('hidden',t!==id);});document.querySelectorAll('.tab').forEach((t,i)=>{const ids=['tab-rates','tab-items','tab-treaty','tab-pw','tab-github'];t.classList.toggle('active',ids[i]===id);});}
-function loadSettingsUI(){document.getElementById('cfg-nhib').value=CFG.nhib;document.getElementById('cfg-nhi-labor').value=CFG.nhiLaborThreshold;document.getElementById('cfg-nhi-salary').value=CFG.nhiSalaryThreshold;document.getElementById('cfg-salary-threshold').value=CFG.salaryThreshold;document.getElementById('cfg-salary-rate').value=CFG.salaryRate;document.getElementById('cfg-labor-threshold').value=CFG.laborThreshold;document.getElementById('cfg-labor-rate').value=CFG.laborRate;renderItems();renderTreaty();const t=getToken();if(t)document.getElementById('cfg-github-token').value=t;const st=document.getElementById('github-status');if(t){st.textContent='✓ Token 已設定';}else{st.textContent='尚未設定 Token，儲存設定時將無法同步到 GitHub';}}
+function showTab(id){['tab-rates','tab-income','tab-items','tab-treaty','tab-pw','tab-github'].forEach(t=>{document.getElementById(t).classList.toggle('hidden',t!==id);});document.querySelectorAll('.tab').forEach((t,i)=>{const ids=['tab-rates','tab-income','tab-items','tab-treaty','tab-pw','tab-github'];t.classList.toggle('active',ids[i]===id);});}
+function loadSettingsUI(){if(!CFG.incomeTypes)CFG.incomeTypes=[{cat:'薪資所得',code:'50'},{cat:'執行業務',code:'9A'},{cat:'執行業務',code:'9B'},{cat:'權利金',code:'53'},{cat:'機會中獎',code:'91'}];document.getElementById('cfg-nhib').value=CFG.nhib;document.getElementById('cfg-nhi-labor').value=CFG.nhiLaborThreshold;document.getElementById('cfg-nhi-salary').value=CFG.nhiSalaryThreshold;document.getElementById('cfg-salary-threshold').value=CFG.salaryThreshold;document.getElementById('cfg-salary-rate').value=CFG.salaryRate;document.getElementById('cfg-labor-threshold').value=CFG.laborThreshold;document.getElementById('cfg-labor-rate').value=CFG.laborRate;renderIncomeTypes();renderItems();renderTreaty();const t=getToken();if(t)document.getElementById('cfg-github-token').value=t;const st=document.getElementById('github-status');if(t){st.textContent='✓ Token 已設定';}else{st.textContent='尚未設定 Token，儲存設定時將無法同步到 GitHub';}}
 async function saveRates(){CFG.nhib=parseFloat(document.getElementById('cfg-nhib').value);CFG.nhiLaborThreshold=parseInt(document.getElementById('cfg-nhi-labor').value);CFG.nhiSalaryThreshold=parseInt(document.getElementById('cfg-nhi-salary').value);CFG.salaryThreshold=parseInt(document.getElementById('cfg-salary-threshold').value);CFG.salaryRate=parseFloat(document.getElementById('cfg-salary-rate').value);CFG.laborThreshold=parseInt(document.getElementById('cfg-labor-threshold').value);CFG.laborRate=parseFloat(document.getElementById('cfg-labor-rate').value);saveConfig(CFG);const ok=await saveConfigToGitHub(CFG);if(ok)alert('稅率參數已儲存並同步到 GitHub！');}
-function renderItems(){const list=document.getElementById('items-list');list.innerHTML='';CFG.items.forEach((item,i)=>{const row=document.createElement('div');row.className='item-row';row.innerHTML=`<input type="text" value="${item.name}" placeholder="費用內容名稱" onchange="CFG.items[${i}].name=this.value"><select onchange="updateItemCatCode(${i},this.value)"><option value="薪資所得|50" ${item.code==='50'?'selected':''}>薪資所得 50</option><option value="執行業務|9A" ${item.code==='9A'?'selected':''}>執行業務 9A</option><option value="執行業務|9B" ${item.code==='9B'?'selected':''}>執行業務 9B</option><option value="權利金|53" ${item.code==='53'?'selected':''}>權利金 53</option><option value="機會中獎|91" ${item.code==='91'?'selected':''}>機會中獎 91</option></select><button class="btn-del" onclick="deleteItem(${i})">刪除</button>`;list.appendChild(row);});}
+function getIncomeOptions(selectedCode){
+  if(!CFG.incomeTypes||CFG.incomeTypes.length===0) return '';
+  return CFG.incomeTypes.map(t=>`<option value="${t.cat}|${t.code}" ${t.code===selectedCode?'selected':''}>${t.cat} ${t.code}</option>`).join('');
+}
+function renderIncomeTypes(){
+  const list=document.getElementById('income-list');list.innerHTML='';
+  if(!CFG.incomeTypes)CFG.incomeTypes=[];
+  CFG.incomeTypes.forEach((t,i)=>{
+    const row=document.createElement('div');row.className='item-row';
+    row.innerHTML=`<input type="text" value="${t.cat}" placeholder="所得類別名稱" onchange="CFG.incomeTypes[${i}].cat=this.value" style="flex:2"><input type="text" value="${t.code}" placeholder="代碼" onchange="CFG.incomeTypes[${i}].code=this.value" style="flex:1;max-width:80px"><button class="btn-del" onclick="deleteIncomeType(${i})">刪除</button>`;
+    list.appendChild(row);
+  });
+}
+function addIncomeType(){CFG.incomeTypes.push({cat:'',code:''});renderIncomeTypes();}
+function deleteIncomeType(i){CFG.incomeTypes.splice(i,1);renderIncomeTypes();}
+async function saveIncomeTypes(){CFG.incomeTypes=CFG.incomeTypes.filter(t=>t.cat.trim()!==''&&t.code.trim()!=='');saveConfig(CFG);renderIncomeTypes();renderItems();initContentSelect();const ok=await saveConfigToGitHub(CFG);if(ok)alert('所得類別已儲存並同步到 GitHub！');}
+function renderItems(){const list=document.getElementById('items-list');list.innerHTML='';CFG.items.forEach((item,i)=>{const row=document.createElement('div');row.className='item-row';row.innerHTML=`<input type="text" value="${item.name}" placeholder="費用內容名稱" onchange="CFG.items[${i}].name=this.value"><select onchange="updateItemCatCode(${i},this.value)">${getIncomeOptions(item.code)}</select><button class="btn-del" onclick="deleteItem(${i})">刪除</button>`;list.appendChild(row);});}
 function updateItemCatCode(i,val){const p=val.split('|');CFG.items[i].cat=p[0];CFG.items[i].code=p[1];}
 function addItem(){CFG.items.push({name:'',cat:'薪資所得',code:'50'});renderItems();}
 function deleteItem(i){CFG.items.splice(i,1);renderItems();}
