@@ -19,7 +19,7 @@ let syncStatus = { status: 'failed', message: '尚未取得同步狀態。' };
 let S = freshState();
 
 function freshState() {
-  return { code: '', cat: '', identity: '', taxmode: '', union: '', treatyEvaluation: null, treatyKey: '', documentsReady: false };
+  return { code: '', cat: '', identity: '', taxmode: '', union: '', treatyEvaluation: null, treatyKey: '', documentAvailability: '', documentsReady: false };
 }
 
 const $ = (id) => document.getElementById(id);
@@ -120,7 +120,7 @@ function bindEvents() {
   $('chk183-2').addEventListener('change', on183Check);
   $('sel-country').addEventListener('change', onTreatyInput);
   $('payment-date').addEventListener('change', onTreatyInput);
-  document.querySelectorAll('.treaty-doc').forEach((node) => node.addEventListener('change', onDocuments));
+  document.querySelectorAll('input[name="document-availability"]').forEach((node) => node.addEventListener('change', onDocumentAvailability));
   document.querySelectorAll('input[name="taxmode"]').forEach((node) => node.addEventListener('change', onTaxMode));
   document.querySelectorAll('input[name="union"]').forEach((node) => node.addEventListener('change', onUnion));
   $('inp-amt').addEventListener('input', calculate);
@@ -194,14 +194,15 @@ function onTreatyInput() {
   }
   const treatyKey = `${code}|${paymentDate}`;
   if (S.treatyKey && S.treatyKey !== treatyKey) {
-    document.querySelectorAll('.treaty-doc').forEach((node) => { node.checked = false; });
+    document.querySelectorAll('input[name="document-availability"]').forEach((node) => { node.checked = false; });
+    S.documentAvailability = '';
     S.documentsReady = false;
   }
   S.treatyKey = treatyKey;
   const country = findCountry(code);
   S.treatyEvaluation = evaluateTreaty(country, paymentDate, syncStatus);
   renderTreatyStatus(country, paymentDate);
-  goStep3();
+  if (S.treatyEvaluation.status !== 'applicable' || S.documentAvailability) goStep3();
 }
 
 function renderTreatyStatus(country, paymentDate) {
@@ -209,7 +210,7 @@ function renderTreatyStatus(country, paymentDate) {
   const card = $('treaty-status');
   card.className = `status-card ${evaluation.status}`;
   $('status-pill').textContent = evaluation.label;
-  $('status-rate').textContent = evaluation.status === 'applicable' ? `協定 ${evaluation.treatyRate}%` : '付款稅率 20%';
+  $('status-rate').textContent = evaluation.status === 'applicable' ? '有租稅協定' : evaluation.status === 'sync_error' ? '需人工確認' : '本次適用 20%';
   let message = evaluation.message;
   const future = country?.agreements?.find((agreement) => agreement.applicableFrom > paymentDate);
   if (evaluation.status === 'applicable' && future) message += ` ${future.label}將自 ${future.applicableFrom} 起改為 ${future.royalty.contentLicenseRate}%。`;
@@ -217,19 +218,36 @@ function renderTreatyStatus(country, paymentDate) {
   card.classList.remove('hidden');
   const canPrepare = evaluation.status === 'applicable';
   $('treaty-documents').classList.toggle('hidden', !canPrepare);
+  if (canPrepare) $('document-treaty-rate').textContent = `${evaluation.treatyRate}%`;
   if (!canPrepare) {
-    document.querySelectorAll('.treaty-doc').forEach((node) => { node.checked = false; });
+    document.querySelectorAll('input[name="document-availability"]').forEach((node) => { node.checked = false; });
+    S.documentAvailability = '';
     S.documentsReady = false;
   }
-  onDocuments();
+  updateDocumentDecisionDisplay();
 }
 
-function onDocuments() {
-  const docs = [...document.querySelectorAll('.treaty-doc')];
-  S.documentsReady = docs.length > 0 && docs.every((node) => node.checked);
-  $('document-decision').textContent = S.documentsReady ? `文件齊備：可使用協定 ${S.treatyEvaluation?.treatyRate}% 試算` : '文件尚未齊備：計算暫按 20%';
-  $('document-decision').classList.toggle('ready', S.documentsReady);
-  calculate();
+function onDocumentAvailability(event) {
+  resetFrom(3);
+  S.documentAvailability = event.target.value;
+  S.documentsReady = S.documentAvailability === 'yes';
+  updateDocumentDecisionDisplay();
+  goStep3();
+}
+
+function updateDocumentDecisionDisplay() {
+  const decision = $('document-decision');
+  decision.classList.remove('ready', 'no-docs', 'waiting');
+  if (S.documentAvailability === 'yes') {
+    decision.textContent = `已確認三份文件都可取得：本次可使用協定稅率 ${S.treatyEvaluation?.treatyRate}%。`;
+    decision.classList.add('ready');
+  } else if (S.documentAvailability === 'no') {
+    decision.textContent = '無法確認三份文件都可取得：本次改用非協定稅率 20%。';
+    decision.classList.add('no-docs');
+  } else {
+    decision.textContent = '請先選擇文件是否都能取得，才能繼續試算。';
+    decision.classList.add('waiting');
+  }
 }
 
 function resetFrom(step) {
@@ -372,9 +390,12 @@ function calculate() {
   const decisionBox = $('rate-decision');
   if (rateDecision) {
     decisionBox.classList.remove('hidden');
-    decisionBox.textContent = rateDecision.canUseTreatyRate
-      ? `協定資格：有｜文件：齊備｜本次採用：${rateDecision.rate}%`
-      : `協定資格：${rateDecision.treatyAvailable ? '有' : '無／尚未適用'}｜文件：${S.documentsReady ? '齊備' : '未齊'}｜本次採用：20%`;
+    $('actual-rate').textContent = `${rateDecision.rate}%`;
+    $('actual-rate-reason').textContent = rateDecision.canUseTreatyRate
+      ? '租稅協定於付款日適用，且已確認三份文件都可取得。'
+      : rateDecision.treatyAvailable
+        ? '雖有租稅協定，但三份文件無法全部取得或尚未確認，因此改用非協定稅率。'
+        : '付款日沒有可套用的租稅協定優惠。';
   } else decisionBox.classList.add('hidden');
   $('result-placeholder').classList.add('hidden');
   $('result-area').classList.remove('hidden');

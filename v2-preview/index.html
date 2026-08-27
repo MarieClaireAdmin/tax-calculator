@@ -15,7 +15,7 @@
     </div>
     <nav aria-label="功能導覽">
       <a class="nav-link active" href="./">試算工具</a>
-      <a class="nav-link" href="documents.html">取得文件範本</a>
+      <a class="nav-link" href="documents.html" target="_blank" rel="noopener">取得文件範本</a>
     </nav>
   </header>
 
@@ -73,15 +73,26 @@
             <a id="status-source" href="https://www.mof.gov.tw/singlehtml/191?cntId=63931" target="_blank" rel="noopener">查看財政部官方資料 ↗</a>
           </div>
 
-          <div class="check-panel hidden" id="treaty-documents">
-            <div class="panel-heading">
-              <div><p class="panel-title">優惠稅率文件確認</p><p>有協定，不等於現在就能直接用優惠稅率。</p></div>
-              <a href="documents.html">取得文件範本</a>
+          <div class="document-panel hidden" id="treaty-documents">
+            <div class="document-warning">
+              <span class="warning-icon" aria-hidden="true">⚠</span>
+              <div>
+                <p class="panel-title">優惠稅率文件確認</p>
+                <p><strong>請務必事先確認是否可以取得下列三個文件，才能使用優惠稅率。</strong></p>
+              </div>
+              <a href="documents.html" target="_blank" rel="noopener">取得文件範本 ↗</a>
             </div>
-            <label><input type="checkbox" class="treaty-doc">Certificate of Tax Residence</label>
-            <label><input type="checkbox" class="treaty-doc">Signed Beneficial Owner Declaration</label>
-            <label><input type="checkbox" class="treaty-doc">Invoice for relevant content/license fee</label>
-            <div class="document-decision" id="document-decision">文件尚未齊備：計算暫按 20%</div>
+            <ul class="document-list">
+              <li>Certificate of Tax Residence</li>
+              <li>Signed Beneficial Owner Declaration</li>
+              <li>Invoice for relevant content/license fee</li>
+            </ul>
+            <fieldset class="document-choice">
+              <legend>以上三份文件都確定可以取得嗎？</legend>
+              <label class="choice-yes"><input type="radio" name="document-availability" value="yes"><span>是，三份都可以取得 <small>→ 使用協定稅率 <b id="document-treaty-rate">—</b></small></span></label>
+              <label class="choice-no"><input type="radio" name="document-availability" value="no"><span>否，或目前還不確定 <small>→ 使用非協定稅率 20%</small></span></label>
+            </fieldset>
+            <div class="document-decision waiting" id="document-decision">請先選擇文件是否都能取得，才能繼續試算。</div>
           </div>
         </div>
       </article>
@@ -119,7 +130,11 @@
         <div class="result-row"><span>公司額外增加成本合計</span><strong id="r-extra">—</strong></div>
         <div class="result-row primary"><span id="lbl-net">給付淨額</span><strong id="r-net">—</strong></div>
         <div class="result-note" id="r-note"></div>
-        <div class="rate-decision hidden" id="rate-decision"></div>
+        <div class="rate-decision hidden" id="rate-decision">
+          <span>本次實際採用稅率</span>
+          <strong id="actual-rate">—</strong>
+          <p id="actual-rate-reason"></p>
+        </div>
       </div>
       <p class="disclaimer">本工具供內部初步試算；所得定性、協定身分與文件效力仍應由財務依個案資料確認。</p>
     </aside>
@@ -127,4 +142,3 @@
   <script type="module" src="app.js"></script>
 </body>
 </html>
-
