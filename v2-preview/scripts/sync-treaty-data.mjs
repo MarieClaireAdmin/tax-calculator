@@ -69,7 +69,11 @@ function validateOfficialSnapshot(data, agreementsHtml, ratesHtml) {
   if (missing.length) throw new Error(`官方頁面缺少既有國家：${missing.join('、')}`);
   if (changed.length) throw new Error(`權利金稅率疑似變動：${changed.join('；')}`);
 
-  const officialRateCountryCount = rateRows.filter((cells) => /[\u3400-\u9fff]/.test(cells[0]) && cells[0] !== '無所得稅協定國家 Non-treaty Countries').length;
+  const officialRateCountryCount = rateRows.filter((cells) =>
+    /[\u3400-\u9fff]/.test(cells[0]) &&
+    !cells[0].includes('無所得稅協定') &&
+    numbers(cells.at(-1)).length > 0
+  ).length;
   if (officialRateCountryCount !== data.countries.length) {
     throw new Error(`協定國數量已改變（官方 ${officialRateCountryCount}；目前資料 ${data.countries.length}），為避免誤判，保留最後成功版本並要求人工覆核。`);
   }
@@ -107,4 +111,3 @@ async function main() {
 }
 
 await main();
-
