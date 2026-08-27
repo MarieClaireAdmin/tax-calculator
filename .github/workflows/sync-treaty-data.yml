@@ -1,0 +1,46 @@
+name: Sync treaty data
+
+on:
+  schedule:
+    - cron: '25 1 * * *'
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/sync-treaty-data.yml'
+      - 'v2-preview/scripts/sync-treaty-data.mjs'
+      - 'v2-preview/treaty-data.json'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: treaty-data-sync
+  cancel-in-progress: false
+
+jobs:
+  verify-and-sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Verify official MOF data
+        id: sync
+        continue-on-error: true
+        run: node v2-preview/scripts/sync-treaty-data.mjs
+      - name: Commit data or failure status
+        run: |
+          if git diff --quiet -- v2-preview/treaty-data.json v2-preview/treaty-sync-status.json; then
+            echo "No treaty data changes"
+          else
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add v2-preview/treaty-data.json v2-preview/treaty-sync-status.json
+            git commit -m "Sync official treaty data"
+            git push
+          fi
+      - name: Report validation failure
+        if: steps.sync.outcome == 'failure'
+        run: exit 1
+

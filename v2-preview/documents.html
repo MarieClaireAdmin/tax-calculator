@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <title>取得文件範本｜Tax Calculator v2</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .document-main{max-width:980px;margin:0 auto;padding:42px 28px 70px}.page-lead{margin-bottom:30px}.page-lead h2{font-size:28px;margin:0 0 10px}.page-lead p{color:var(--muted);line-height:1.7;margin:0}
+    .template-card{border:1px solid var(--line);margin-bottom:16px}.template-head{display:flex;justify-content:space-between;gap:18px;align-items:center;padding:20px 24px;background:var(--wash);border-bottom:1px solid var(--line)}
+    .template-head h3{font-size:17px;margin:0 0 5px}.template-head p{font-size:13px;color:var(--muted);margin:0}.action{display:inline-block;border:1px solid var(--ink);background:var(--ink);color:#fff;text-decoration:none;padding:11px 15px;font-size:13px;cursor:pointer;white-space:nowrap}
+    .action.secondary{background:#fff;color:var(--ink)}.email-subject{padding:15px 24px;border-bottom:1px solid var(--line);font-size:13px}.email-body{margin:0;padding:24px;white-space:pre-wrap;font:15px/1.75 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#fff}
+    .requirements{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:24px 0}.requirement{padding:18px;border:1px solid var(--line)}.requirement strong{display:block;font-size:13px;margin-bottom:8px}.requirement p{font-size:12px;line-height:1.6;color:var(--muted);margin:0}
+    .copy-status{font-size:12px;color:var(--green);margin-left:10px}@media(max-width:700px){.template-head{align-items:flex-start;flex-direction:column}.requirements{grid-template-columns:1fr}.action{width:100%;text-align:center}}
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div><p class="eyebrow">INTERNAL TOOL · FINANCE <span class="preview-badge">V2 PREVIEW</span></p><h1>租稅協定文件範本</h1></div>
+    <nav><a class="nav-link" href="./">試算工具</a><a class="nav-link active" href="documents.html">取得文件範本</a></nav>
+  </header>
+  <main class="document-main">
+    <section class="page-lead">
+      <h2>一次向對方索取三份文件</h2>
+      <p>協定國只代表「可能適用」；實際使用優惠稅率前，仍須取得並確認以下文件。</p>
+    </section>
+    <div class="requirements">
+      <div class="requirement"><strong>1. Certificate of Tax Residence</strong><p>由當地稅務機關核發，並涵蓋相關年度。</p></div>
+      <div class="requirement"><strong>2. Beneficial Owner Declaration</strong><p>請對方填寫公司、稅務居住國及簽署人資料並簽名。</p></div>
+      <div class="requirement"><strong>3. Invoice</strong><p>須能辨識本次圖文／影片內容或授權費。</p></div>
+    </div>
+
+    <section class="template-card">
+      <div class="template-head">
+        <div><h3>公版英文 Email</h3><p>可直接複製後替換收件人名稱。</p></div>
+        <div><button class="action secondary" id="copy-email" type="button">複製完整 Email</button><span class="copy-status" id="copy-status" aria-live="polite"></span></div>
+      </div>
+      <div class="email-subject"><strong>Subject:</strong> Documents Required for Taiwan Tax Withholding</div>
+      <pre class="email-body" id="email-body">Dear XXX,
+
+Regarding the fees for the articles, photos and video content provided to us for use in our Taiwan edition, for Taiwan withholding tax purposes, could you please provide the following documents:
+
+1. Certificate of Tax Residence:
+Issued by your local tax authority, confirming that your company is a tax resident for the relevant year
+
+2. Signed Beneficial Owner Declaration:
+Please complete and sign the attached form
+
+3. Invoice:
+For the relevant content/license fee
+
+These documents are required for us to apply the applicable tax treaty treatment.
+
+Please send us scanned PDF copies by email.
+
+Thank you for your assistance.
+
+Best regards,</pre>
+    </section>
+
+    <section class="template-card">
+      <div class="template-head">
+        <div><h3>Beneficial Owner Declaration</h3><p>公司版英文聲明書，可下載 Word 後附在 Email 中。</p></div>
+        <a class="action" href="templates/Beneficial-Owner-Declaration.docx" download>下載 Word 範本</a>
+      </div>
+    </section>
+  </main>
+  <script>
+    document.getElementById('copy-email').addEventListener('click', async () => {
+      const subject = 'Subject: Documents Required for Taiwan Tax Withholding';
+      const body = document.getElementById('email-body').textContent;
+      try {
+        await navigator.clipboard.writeText(`${subject}\n\n${body}`);
+        document.getElementById('copy-status').textContent = '已複製';
+      } catch (error) {
+        document.getElementById('copy-status').textContent = '無法自動複製，請手動選取';
+      }
+    });
+  </script>
+</body>
+</html>
+

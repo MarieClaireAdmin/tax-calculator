@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <title>Tax Calculator v2｜租稅協定預覽</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <div>
+      <p class="eyebrow">INTERNAL TOOL · FINANCE <span class="preview-badge">V2 PREVIEW</span></p>
+      <h1>列帳成本與實拿金額試算工具</h1>
+    </div>
+    <nav aria-label="功能導覽">
+      <a class="nav-link active" href="./">試算工具</a>
+      <a class="nav-link" href="documents.html">取得文件範本</a>
+    </nav>
+  </header>
+
+  <div class="source-strip" id="source-strip" role="status">
+    <span class="source-dot"></span>
+    <span id="source-text">正在載入財政部租稅協定資料…</span>
+  </div>
+
+  <main class="layout">
+    <section class="steps" aria-label="試算步驟">
+      <article class="step" id="blk1">
+        <header class="step-header"><span>I</span><h2>選擇費用內容</h2></header>
+        <select id="sel-content"><option value="">— 請選擇 —</option></select>
+        <div class="auto-row hidden" id="auto-info">
+          <div class="auto-card"><small>所得類別</small><strong id="disp-cat">—</strong></div>
+          <div class="auto-card"><small>格式代碼</small><strong id="disp-code">—</strong></div>
+        </div>
+      </article>
+
+      <article class="step inactive" id="blk2">
+        <header class="step-header"><span>II</span><h2 id="step2-title">所得人身分</h2></header>
+
+        <div id="identity-regular" class="radio-group">
+          <label><input type="radio" name="identity" value="local"><span>本國人</span></label>
+          <label><input type="radio" name="identity" value="foreign183"><span>外國人，主張滿 183 天（視同本國人）</span></label>
+          <label><input type="radio" name="identity" value="foreign"><span>外國人，未滿 183 天</span></label>
+        </div>
+
+        <div id="identity-royalty" class="radio-group hidden">
+          <label><input type="radio" name="payee-location" value="local"><span>台灣給付對象</span></label>
+          <label><input type="radio" name="payee-location" value="foreign"><span>境外給付對象</span></label>
+        </div>
+
+        <div class="check-panel hidden" id="checklist-183">
+          <p class="panel-title">請確認以下兩項</p>
+          <label><input type="checkbox" id="chk183-1">所得人已提供居留證影本</label>
+          <label><input type="checkbox" id="chk183-2">已詢問財務部，確認本年度截至付款日已居留滿 183 天</label>
+        </div>
+
+        <div class="treaty-panel hidden" id="treaty-wrap">
+          <div class="field-grid">
+            <label class="field-label">稅務居住國
+              <select id="sel-country"><option value="">— 請選擇稅務居住國 —</option></select>
+              <small>請依稅籍居民證明判斷，不是看公司國籍或登記地名稱。</small>
+            </label>
+            <label class="field-label">預計付款日期
+              <input type="date" id="payment-date">
+              <small>用付款日判斷協定是否已開始適用。</small>
+            </label>
+          </div>
+
+          <div id="treaty-status" class="status-card hidden" aria-live="polite">
+            <div class="status-top"><span class="status-pill" id="status-pill">—</span><strong id="status-rate">—</strong></div>
+            <p id="status-message"></p>
+            <a id="status-source" href="https://www.mof.gov.tw/singlehtml/191?cntId=63931" target="_blank" rel="noopener">查看財政部官方資料 ↗</a>
+          </div>
+
+          <div class="check-panel hidden" id="treaty-documents">
+            <div class="panel-heading">
+              <div><p class="panel-title">優惠稅率文件確認</p><p>有協定，不等於現在就能直接用優惠稅率。</p></div>
+              <a href="documents.html">取得文件範本</a>
+            </div>
+            <label><input type="checkbox" class="treaty-doc">Certificate of Tax Residence</label>
+            <label><input type="checkbox" class="treaty-doc">Signed Beneficial Owner Declaration</label>
+            <label><input type="checkbox" class="treaty-doc">Invoice for relevant content/license fee</label>
+            <div class="document-decision" id="document-decision">文件尚未齊備：計算暫按 20%</div>
+          </div>
+        </div>
+      </article>
+
+      <article class="step inactive" id="blk3">
+        <header class="step-header"><span>III</span><h2>稅由誰負擔</h2></header>
+        <div class="radio-group">
+          <label><input type="radio" name="taxmode" value="normal"><span>對方負擔（正常版）</span></label>
+          <label><input type="radio" name="taxmode" value="net"><span>公司負擔（實拿版）</span></label>
+        </div>
+      </article>
+
+      <article class="step inactive" id="blk4">
+        <header class="step-header"><span>IV</span><h2>是否有工會</h2></header>
+        <div class="radio-group">
+          <label><input type="radio" name="union" value="no"><span>無工會</span></label>
+          <label><input type="radio" name="union" value="yes"><span>有工會（已提供投保證明）</span></label>
+        </div>
+      </article>
+
+      <article class="step inactive" id="blk5">
+        <header class="step-header"><span>V</span><h2 id="amt-label">輸入所得額</h2></header>
+        <input type="number" id="inp-amt" placeholder="請輸入金額（整數，新台幣）" min="1" step="1" inputmode="numeric">
+        <p class="hint">結果會即時顯示</p>
+      </article>
+    </section>
+
+    <aside class="results" aria-live="polite">
+      <h2>計算結果</h2>
+      <div id="result-placeholder" class="placeholder"><span></span><p>請完成左側步驟</p></div>
+      <div id="result-area" class="hidden">
+        <div class="result-row primary"><span>公司帳列成本：填入報支單</span><strong id="r-company">—</strong></div>
+        <div class="result-row"><span>扣繳稅額</span><strong id="r-tax">—</strong></div>
+        <div class="result-row"><span>補充保費</span><strong id="r-nhi">—</strong></div>
+        <div class="result-row"><span>公司額外增加成本合計</span><strong id="r-extra">—</strong></div>
+        <div class="result-row primary"><span id="lbl-net">給付淨額</span><strong id="r-net">—</strong></div>
+        <div class="result-note" id="r-note"></div>
+        <div class="rate-decision hidden" id="rate-decision"></div>
+      </div>
+      <p class="disclaimer">本工具供內部初步試算；所得定性、協定身分與文件效力仍應由財務依個案資料確認。</p>
+    </aside>
+  </main>
+  <script type="module" src="app.js"></script>
+</body>
+</html>
+
