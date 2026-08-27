@@ -1,7 +1,6 @@
 {
-  "status": "success",
-  "lastAttemptAt": "2026-08-27T08:30:00Z",
+  "status": "failed",
+  "lastAttemptAt": "2026-08-27T06:43:29.927Z",
   "lastSuccessfulSync": "2026-08-27T08:30:00Z",
-  "message": "財政部協定清單與權利金稅率頁面驗證成功。"
+  "message": "協定國數量已改變（官方 37；目前資料 36），為避免誤判，保留最後成功版本並要求人工覆核。"
 }
-
