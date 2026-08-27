@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "scope": "Taiwan-source royalty withholding for purchased photo, article and video content licences",
-  "lastSuccessfulSync": "2026-08-27T08:30:00Z",
+  "lastSuccessfulSync": "2026-08-27T06:44:57.602Z",
   "sourcePageUpdatedAt": "2026-06-26",
   "sources": {
     "agreements": "https://www.mof.gov.tw/singlehtml/191?cntId=63930",
@@ -10,42 +10,595 @@
   },
   "nonTreatyRoyaltyRate": 20,
   "countries": [
-    {"code":"AU","nameZh":"澳大利亞","nameEn":"Australia","agreements":[{"label":"臺澳所得稅協定","effectiveDate":"1996-10-11","applicableFrom":"1997-01-01","royalty":{"officialDisplay":"12.5%","contentLicenseRate":12.5}}]},
-    {"code":"AT","nameZh":"奧地利","nameEn":"Austria","agreements":[{"label":"臺奧所得稅協定","effectiveDate":"2014-12-20","applicableFrom":"2015-01-01","royalty":{"officialDisplay":"10%","contentLicenseRate":10}}]},
-    {"code":"BE","nameZh":"比利時","nameEn":"Belgium","agreements":[{"label":"臺比所得稅協定","effectiveDate":"2005-12-14","applicableFrom":"2006-01-01","royalty":{"officialDisplay":"10%","contentLicenseRate":10}}]},
-    {"code":"CA","nameZh":"加拿大","nameEn":"Canada","agreements":[{"label":"臺加所得稅協定","effectiveDate":"2016-12-19","applicableFrom":"2017-01-01","royalty":{"officialDisplay":"10%","contentLicenseRate":10}}]},
-    {"code":"CZ","nameZh":"捷克","nameEn":"Czech Republic","agreements":[{"label":"臺捷所得稅協定","effectiveDate":"2020-05-12","applicableFrom":"2021-01-01","royalty":{"officialDisplay":"設備 5%；其他 10%","contentLicenseRate":10,"note":"5%僅限工業、商業或科學設備；圖文內容授權使用10%。"}}]},
-    {"code":"DK","nameZh":"丹麥","nameEn":"Denmark","agreements":[{"label":"臺丹所得稅協定","effectiveDate":"2005-12-23","applicableFrom":"2006-01-01","royalty":{"officialDisplay":"10%","contentLicenseRate":10}}]},
-    {"code":"FR","nameZh":"法國","nameEn":"France","agreements":[{"label":"臺法所得稅協定","effectiveDate":"2011-01-01","applicableFrom":"2011-01-01","royalty":{"officialDisplay":"10%","contentLicenseRate":10}}]},
-    {"code":"GM","nameZh":"甘比亞","nameEn":"Gambia","agreements":[{"label":"臺甘所得稅協定","effectiveDate":"1998-11-04","applicableFrom":"1999-01-01","royalty":{"officialDisplay":"10%","contentLicenseRate":10}}]},
-    {"code":"DE","nameZh":"德國","nameEn":"Germany","agreements":[{"label":"臺德所得稅協定","effectiveDate":"2012-11-07","applicableFrom":"2013-01-01","royalty":{"officialDisplay":"10%","contentLicenseRate":10}}]},
-    {"code":"HU","nameZh":"匈牙利","nameEn":"Hungary","agreements":[{"label":"臺匈所得稅協定","effectiveDate":"2010-12-29","applicableFrom":"2011-01-01","royalty":{"officialDisplay":"10%","contentLicenseRate":10}}]},
-    {"code":"IN","nameZh":"印度","nameEn":"India","agreements":[{"label":"臺印度所得稅協定","effectiveDate":"2011-08-12","applicableFrom":"2012-01-01","royalty":{"officialDisplay":"10%","contentLicenseRate":10}}]},
-    {"code":"ID","nameZh":"印尼","nameEn":"Indonesia","agreements":[{"label":"臺印尼所得稅協定","effectiveDate":"1996-01-12","applicableFrom":"1997-01-01","royalty":{"officialDisplay":"10%","contentLicenseRate":10}}]},
-    {"code":"IL","nameZh":"以色列","nameEn":"Israel","agreements":[{"label":"臺以所得稅協定","effectiveDate":"2009-12-24","applicableFrom":"2010-01-01","royalty":{"officialDisplay":"10%","contentLicenseRate":10}}]},
-    {"code":"IT","nameZh":"義大利","nameEn":"Italy","agreements":[{"label":"臺義所得稅協定","effectiveDate":"2015-12-31","applicableFrom":"2016-01-01","royalty":{"officialDisplay":"10%","contentLicenseRate":10}}]},
-    {"code":"JP","nameZh":"日本","nameEn":"Japan","agreements":[{"label":"臺日所得稅協定","effectiveDate":"2016-06-13","applicableFrom":"2017-01-01","royalty":{"officialDisplay":"10%","contentLicenseRate":10}}]},
-    {"code":"KR","nameZh":"韓國","nameEn":"Korea","agreements":[{"label":"臺韓所得稅協定","effectiveDate":"2023-12-27","applicableFrom":"2024-01-01","royalty":{"officialDisplay":"10%","contentLicenseRate":10}}]},
-    {"code":"KI","nameZh":"吉里巴斯","nameEn":"Kiribati","agreements":[{"label":"臺吉所得稅協定","effectiveDate":"2014-06-23","applicableFrom":"2015-01-01","royalty":{"officialDisplay":"10%","contentLicenseRate":10}}]},
-    {"code":"LU","nameZh":"盧森堡","nameEn":"Luxembourg","agreements":[{"label":"臺盧所得稅協定","effectiveDate":"2014-07-25","applicableFrom":"2015-01-01","royalty":{"officialDisplay":"10%","contentLicenseRate":10}}]},
-    {"code":"MK","nameZh":"北馬其頓","nameEn":"North Macedonia","agreements":[{"label":"臺北馬其頓所得稅協定","effectiveDate":"1999-06-09","applicableFrom":"2000-01-01","royalty":{"officialDisplay":"10%","contentLicenseRate":10}}]},
-    {"code":"MY","nameZh":"馬來西亞","nameEn":"Malaysia","agreements":[{"label":"臺馬所得稅協定","effectiveDate":"1999-02-26","applicableFrom":"2000-01-01","royalty":{"officialDisplay":"10%","contentLicenseRate":10}}]},
-    {"code":"NZ","nameZh":"紐西蘭","nameEn":"New Zealand","agreements":[{"label":"臺紐所得稅協定","effectiveDate":"1997-12-05","applicableFrom":"1998-01-01","royalty":{"officialDisplay":"10%","contentLicenseRate":10}}]},
-    {"code":"NL","nameZh":"荷蘭","nameEn":"Netherlands","agreements":[{"label":"臺荷所得稅協定","effectiveDate":"2001-05-16","applicableFrom":"2002-01-01","royalty":{"officialDisplay":"10%","contentLicenseRate":10}}]},
-    {"code":"PY","nameZh":"巴拉圭","nameEn":"Paraguay","agreements":[{"label":"臺巴所得稅協定","effectiveDate":"2010-06-03","applicableFrom":"2011-01-01","royalty":{"officialDisplay":"10%","contentLicenseRate":10}}]},
-    {"code":"PL","nameZh":"波蘭","nameEn":"Poland","agreements":[{"label":"臺波所得稅協定","effectiveDate":"2016-12-30","applicableFrom":"2017-01-01","royalty":{"officialDisplay":"設備 3%；其他 10%","contentLicenseRate":10,"note":"3%僅限工業、商業或科學設備；圖文內容授權使用10%。"}}]},
-    {"code":"SA","nameZh":"沙烏地阿拉伯","nameEn":"Saudi Arabia","agreements":[{"label":"臺沙所得稅協定","effectiveDate":"2021-11-01","applicableFrom":"2022-01-01","royalty":{"officialDisplay":"設備 4%；其他 10%","contentLicenseRate":10,"note":"4%僅限工業、商業或科學設備；圖文內容授權使用10%。"}}]},
-    {"code":"SN","nameZh":"塞內加爾","nameEn":"Senegal","agreements":[{"label":"臺塞所得稅協定","effectiveDate":"2004-09-10","applicableFrom":"2005-01-01","royalty":{"officialDisplay":"12.5%","contentLicenseRate":12.5}}]},
-    {"code":"SG","nameZh":"新加坡","nameEn":"Singapore","agreements":[{"label":"臺新原協定","effectiveDate":"1982-01-01","applicableFrom":"1982-01-01","applicableUntil":"2026-12-31","royalty":{"officialDisplay":"15%","contentLicenseRate":15}},{"label":"臺新所得稅協定新約","effectiveDate":"2026-02-13","applicableFrom":"2027-01-01","royalty":{"officialDisplay":"10%","contentLicenseRate":10}}]},
-    {"code":"SK","nameZh":"斯洛伐克","nameEn":"Slovakia","agreements":[{"label":"臺斯所得稅協定","effectiveDate":"2011-09-24","applicableFrom":"2012-01-01","royalty":{"officialDisplay":"設備 5%；其他 10%","contentLicenseRate":10,"note":"5%僅限工業、商業或科學設備；圖文內容授權使用10%。"}}]},
-    {"code":"ZA","nameZh":"南非","nameEn":"South Africa","agreements":[{"label":"臺南非所得稅協定","effectiveDate":"1996-09-12","applicableFrom":"1997-01-01","royalty":{"officialDisplay":"10%","contentLicenseRate":10}}]},
-    {"code":"SZ","nameZh":"史瓦帝尼","nameEn":"Eswatini","agreements":[{"label":"臺史所得稅協定","effectiveDate":"1999-02-09","applicableFrom":"2000-01-01","royalty":{"officialDisplay":"10%","contentLicenseRate":10}}]},
-    {"code":"SE","nameZh":"瑞典","nameEn":"Sweden","agreements":[{"label":"臺瑞典所得稅協定","effectiveDate":"2004-11-24","applicableFrom":"2005-01-01","royalty":{"officialDisplay":"10%","contentLicenseRate":10}}]},
-    {"code":"CH","nameZh":"瑞士","nameEn":"Switzerland","agreements":[{"label":"臺瑞所得稅協定","effectiveDate":"2011-12-13","applicableFrom":"2012-01-01","royalty":{"officialDisplay":"10%","contentLicenseRate":10}}]},
-    {"code":"TH","nameZh":"泰國","nameEn":"Thailand","agreements":[{"label":"臺泰所得稅協定","effectiveDate":"2012-12-19","applicableFrom":"2013-01-01","royalty":{"officialDisplay":"10%","contentLicenseRate":10}}]},
-    {"code":"TV","nameZh":"吐瓦魯","nameEn":"Tuvalu","agreements":[{"label":"臺吐所得稅協定","effectiveDate":"2026-06-11","applicableFrom":"2027-01-01","royalty":{"officialDisplay":"10%","contentLicenseRate":10}}]},
-    {"code":"GB","nameZh":"英國","nameEn":"United Kingdom","agreements":[{"label":"臺英所得稅協定（含修約議定書）","effectiveDate":"2002-12-23","applicableFrom":"2003-01-01","royalty":{"officialDisplay":"10%","contentLicenseRate":10}}]},
-    {"code":"VN","nameZh":"越南","nameEn":"Vietnam","agreements":[{"label":"臺越所得稅協定","effectiveDate":"1998-05-06","applicableFrom":"1999-01-01","royalty":{"officialDisplay":"15%","contentLicenseRate":15}}]}
+    {
+      "code": "AU",
+      "nameZh": "澳大利亞",
+      "nameEn": "Australia",
+      "agreements": [
+        {
+          "label": "臺澳所得稅協定",
+          "effectiveDate": "1996-10-11",
+          "applicableFrom": "1997-01-01",
+          "royalty": {
+            "officialDisplay": "12.5%",
+            "contentLicenseRate": 12.5
+          }
+        }
+      ]
+    },
+    {
+      "code": "AT",
+      "nameZh": "奧地利",
+      "nameEn": "Austria",
+      "agreements": [
+        {
+          "label": "臺奧所得稅協定",
+          "effectiveDate": "2014-12-20",
+          "applicableFrom": "2015-01-01",
+          "royalty": {
+            "officialDisplay": "10%",
+            "contentLicenseRate": 10
+          }
+        }
+      ]
+    },
+    {
+      "code": "BE",
+      "nameZh": "比利時",
+      "nameEn": "Belgium",
+      "agreements": [
+        {
+          "label": "臺比所得稅協定",
+          "effectiveDate": "2005-12-14",
+          "applicableFrom": "2006-01-01",
+          "royalty": {
+            "officialDisplay": "10%",
+            "contentLicenseRate": 10
+          }
+        }
+      ]
+    },
+    {
+      "code": "CA",
+      "nameZh": "加拿大",
+      "nameEn": "Canada",
+      "agreements": [
+        {
+          "label": "臺加所得稅協定",
+          "effectiveDate": "2016-12-19",
+          "applicableFrom": "2017-01-01",
+          "royalty": {
+            "officialDisplay": "10%",
+            "contentLicenseRate": 10
+          }
+        }
+      ]
+    },
+    {
+      "code": "CZ",
+      "nameZh": "捷克",
+      "nameEn": "Czech Republic",
+      "agreements": [
+        {
+          "label": "臺捷所得稅協定",
+          "effectiveDate": "2020-05-12",
+          "applicableFrom": "2021-01-01",
+          "royalty": {
+            "officialDisplay": "設備 5%；其他 10%",
+            "contentLicenseRate": 10,
+            "note": "5%僅限工業、商業或科學設備；圖文內容授權使用10%。"
+          }
+        }
+      ]
+    },
+    {
+      "code": "DK",
+      "nameZh": "丹麥",
+      "nameEn": "Denmark",
+      "agreements": [
+        {
+          "label": "臺丹所得稅協定",
+          "effectiveDate": "2005-12-23",
+          "applicableFrom": "2006-01-01",
+          "royalty": {
+            "officialDisplay": "10%",
+            "contentLicenseRate": 10
+          }
+        }
+      ]
+    },
+    {
+      "code": "FR",
+      "nameZh": "法國",
+      "nameEn": "France",
+      "agreements": [
+        {
+          "label": "臺法所得稅協定",
+          "effectiveDate": "2011-01-01",
+          "applicableFrom": "2011-01-01",
+          "royalty": {
+            "officialDisplay": "10%",
+            "contentLicenseRate": 10
+          }
+        }
+      ]
+    },
+    {
+      "code": "GM",
+      "nameZh": "甘比亞",
+      "nameEn": "Gambia",
+      "agreements": [
+        {
+          "label": "臺甘所得稅協定",
+          "effectiveDate": "1998-11-04",
+          "applicableFrom": "1999-01-01",
+          "royalty": {
+            "officialDisplay": "10%",
+            "contentLicenseRate": 10
+          }
+        }
+      ]
+    },
+    {
+      "code": "DE",
+      "nameZh": "德國",
+      "nameEn": "Germany",
+      "agreements": [
+        {
+          "label": "臺德所得稅協定",
+          "effectiveDate": "2012-11-07",
+          "applicableFrom": "2013-01-01",
+          "royalty": {
+            "officialDisplay": "10%",
+            "contentLicenseRate": 10
+          }
+        }
+      ]
+    },
+    {
+      "code": "HU",
+      "nameZh": "匈牙利",
+      "nameEn": "Hungary",
+      "agreements": [
+        {
+          "label": "臺匈所得稅協定",
+          "effectiveDate": "2010-12-29",
+          "applicableFrom": "2011-01-01",
+          "royalty": {
+            "officialDisplay": "10%",
+            "contentLicenseRate": 10
+          }
+        }
+      ]
+    },
+    {
+      "code": "IN",
+      "nameZh": "印度",
+      "nameEn": "India",
+      "agreements": [
+        {
+          "label": "臺印度所得稅協定",
+          "effectiveDate": "2011-08-12",
+          "applicableFrom": "2012-01-01",
+          "royalty": {
+            "officialDisplay": "10%",
+            "contentLicenseRate": 10
+          }
+        }
+      ]
+    },
+    {
+      "code": "ID",
+      "nameZh": "印尼",
+      "nameEn": "Indonesia",
+      "agreements": [
+        {
+          "label": "臺印尼所得稅協定",
+          "effectiveDate": "1996-01-12",
+          "applicableFrom": "1997-01-01",
+          "royalty": {
+            "officialDisplay": "10%",
+            "contentLicenseRate": 10
+          }
+        }
+      ]
+    },
+    {
+      "code": "IL",
+      "nameZh": "以色列",
+      "nameEn": "Israel",
+      "agreements": [
+        {
+          "label": "臺以所得稅協定",
+          "effectiveDate": "2009-12-24",
+          "applicableFrom": "2010-01-01",
+          "royalty": {
+            "officialDisplay": "10%",
+            "contentLicenseRate": 10
+          }
+        }
+      ]
+    },
+    {
+      "code": "IT",
+      "nameZh": "義大利",
+      "nameEn": "Italy",
+      "agreements": [
+        {
+          "label": "臺義所得稅協定",
+          "effectiveDate": "2015-12-31",
+          "applicableFrom": "2016-01-01",
+          "royalty": {
+            "officialDisplay": "10%",
+            "contentLicenseRate": 10
+          }
+        }
+      ]
+    },
+    {
+      "code": "JP",
+      "nameZh": "日本",
+      "nameEn": "Japan",
+      "agreements": [
+        {
+          "label": "臺日所得稅協定",
+          "effectiveDate": "2016-06-13",
+          "applicableFrom": "2017-01-01",
+          "royalty": {
+            "officialDisplay": "10%",
+            "contentLicenseRate": 10
+          }
+        }
+      ]
+    },
+    {
+      "code": "KR",
+      "nameZh": "韓國",
+      "nameEn": "Korea",
+      "agreements": [
+        {
+          "label": "臺韓所得稅協定",
+          "effectiveDate": "2023-12-27",
+          "applicableFrom": "2024-01-01",
+          "royalty": {
+            "officialDisplay": "10%",
+            "contentLicenseRate": 10
+          }
+        }
+      ]
+    },
+    {
+      "code": "KI",
+      "nameZh": "吉里巴斯",
+      "nameEn": "Kiribati",
+      "agreements": [
+        {
+          "label": "臺吉所得稅協定",
+          "effectiveDate": "2014-06-23",
+          "applicableFrom": "2015-01-01",
+          "royalty": {
+            "officialDisplay": "10%",
+            "contentLicenseRate": 10
+          }
+        }
+      ]
+    },
+    {
+      "code": "LU",
+      "nameZh": "盧森堡",
+      "nameEn": "Luxembourg",
+      "agreements": [
+        {
+          "label": "臺盧所得稅協定",
+          "effectiveDate": "2014-07-25",
+          "applicableFrom": "2015-01-01",
+          "royalty": {
+            "officialDisplay": "10%",
+            "contentLicenseRate": 10
+          }
+        }
+      ]
+    },
+    {
+      "code": "MK",
+      "nameZh": "北馬其頓",
+      "nameEn": "North Macedonia",
+      "agreements": [
+        {
+          "label": "臺北馬其頓所得稅協定",
+          "effectiveDate": "1999-06-09",
+          "applicableFrom": "2000-01-01",
+          "royalty": {
+            "officialDisplay": "10%",
+            "contentLicenseRate": 10
+          }
+        }
+      ]
+    },
+    {
+      "code": "MY",
+      "nameZh": "馬來西亞",
+      "nameEn": "Malaysia",
+      "agreements": [
+        {
+          "label": "臺馬所得稅協定",
+          "effectiveDate": "1999-02-26",
+          "applicableFrom": "2000-01-01",
+          "royalty": {
+            "officialDisplay": "10%",
+            "contentLicenseRate": 10
+          }
+        }
+      ]
+    },
+    {
+      "code": "NZ",
+      "nameZh": "紐西蘭",
+      "nameEn": "New Zealand",
+      "agreements": [
+        {
+          "label": "臺紐所得稅協定",
+          "effectiveDate": "1997-12-05",
+          "applicableFrom": "1998-01-01",
+          "royalty": {
+            "officialDisplay": "10%",
+            "contentLicenseRate": 10
+          }
+        }
+      ]
+    },
+    {
+      "code": "NL",
+      "nameZh": "荷蘭",
+      "nameEn": "Netherlands",
+      "agreements": [
+        {
+          "label": "臺荷所得稅協定",
+          "effectiveDate": "2001-05-16",
+          "applicableFrom": "2002-01-01",
+          "royalty": {
+            "officialDisplay": "10%",
+            "contentLicenseRate": 10
+          }
+        }
+      ]
+    },
+    {
+      "code": "PY",
+      "nameZh": "巴拉圭",
+      "nameEn": "Paraguay",
+      "agreements": [
+        {
+          "label": "臺巴所得稅協定",
+          "effectiveDate": "2010-06-03",
+          "applicableFrom": "2011-01-01",
+          "royalty": {
+            "officialDisplay": "10%",
+            "contentLicenseRate": 10
+          }
+        }
+      ]
+    },
+    {
+      "code": "PL",
+      "nameZh": "波蘭",
+      "nameEn": "Poland",
+      "agreements": [
+        {
+          "label": "臺波所得稅協定",
+          "effectiveDate": "2016-12-30",
+          "applicableFrom": "2017-01-01",
+          "royalty": {
+            "officialDisplay": "設備 3%；其他 10%",
+            "contentLicenseRate": 10,
+            "note": "3%僅限工業、商業或科學設備；圖文內容授權使用10%。"
+          }
+        }
+      ]
+    },
+    {
+      "code": "SA",
+      "nameZh": "沙烏地阿拉伯",
+      "nameEn": "Saudi Arabia",
+      "agreements": [
+        {
+          "label": "臺沙所得稅協定",
+          "effectiveDate": "2021-11-01",
+          "applicableFrom": "2022-01-01",
+          "royalty": {
+            "officialDisplay": "設備 4%；其他 10%",
+            "contentLicenseRate": 10,
+            "note": "4%僅限工業、商業或科學設備；圖文內容授權使用10%。"
+          }
+        }
+      ]
+    },
+    {
+      "code": "SN",
+      "nameZh": "塞內加爾",
+      "nameEn": "Senegal",
+      "agreements": [
+        {
+          "label": "臺塞所得稅協定",
+          "effectiveDate": "2004-09-10",
+          "applicableFrom": "2005-01-01",
+          "royalty": {
+            "officialDisplay": "12.5%",
+            "contentLicenseRate": 12.5
+          }
+        }
+      ]
+    },
+    {
+      "code": "SG",
+      "nameZh": "新加坡",
+      "nameEn": "Singapore",
+      "agreements": [
+        {
+          "label": "臺新原協定",
+          "effectiveDate": "1982-01-01",
+          "applicableFrom": "1982-01-01",
+          "applicableUntil": "2026-12-31",
+          "royalty": {
+            "officialDisplay": "15%",
+            "contentLicenseRate": 15
+          }
+        },
+        {
+          "label": "臺新所得稅協定新約",
+          "effectiveDate": "2026-02-13",
+          "applicableFrom": "2027-01-01",
+          "royalty": {
+            "officialDisplay": "10%",
+            "contentLicenseRate": 10
+          }
+        }
+      ]
+    },
+    {
+      "code": "SK",
+      "nameZh": "斯洛伐克",
+      "nameEn": "Slovakia",
+      "agreements": [
+        {
+          "label": "臺斯所得稅協定",
+          "effectiveDate": "2011-09-24",
+          "applicableFrom": "2012-01-01",
+          "royalty": {
+            "officialDisplay": "設備 5%；其他 10%",
+            "contentLicenseRate": 10,
+            "note": "5%僅限工業、商業或科學設備；圖文內容授權使用10%。"
+          }
+        }
+      ]
+    },
+    {
+      "code": "ZA",
+      "nameZh": "南非",
+      "nameEn": "South Africa",
+      "agreements": [
+        {
+          "label": "臺南非所得稅協定",
+          "effectiveDate": "1996-09-12",
+          "applicableFrom": "1997-01-01",
+          "royalty": {
+            "officialDisplay": "10%",
+            "contentLicenseRate": 10
+          }
+        }
+      ]
+    },
+    {
+      "code": "SZ",
+      "nameZh": "史瓦帝尼",
+      "nameEn": "Eswatini",
+      "agreements": [
+        {
+          "label": "臺史所得稅協定",
+          "effectiveDate": "1999-02-09",
+          "applicableFrom": "2000-01-01",
+          "royalty": {
+            "officialDisplay": "10%",
+            "contentLicenseRate": 10
+          }
+        }
+      ]
+    },
+    {
+      "code": "SE",
+      "nameZh": "瑞典",
+      "nameEn": "Sweden",
+      "agreements": [
+        {
+          "label": "臺瑞典所得稅協定",
+          "effectiveDate": "2004-11-24",
+          "applicableFrom": "2005-01-01",
+          "royalty": {
+            "officialDisplay": "10%",
+            "contentLicenseRate": 10
+          }
+        }
+      ]
+    },
+    {
+      "code": "CH",
+      "nameZh": "瑞士",
+      "nameEn": "Switzerland",
+      "agreements": [
+        {
+          "label": "臺瑞所得稅協定",
+          "effectiveDate": "2011-12-13",
+          "applicableFrom": "2012-01-01",
+          "royalty": {
+            "officialDisplay": "10%",
+            "contentLicenseRate": 10
+          }
+        }
+      ]
+    },
+    {
+      "code": "TH",
+      "nameZh": "泰國",
+      "nameEn": "Thailand",
+      "agreements": [
+        {
+          "label": "臺泰所得稅協定",
+          "effectiveDate": "2012-12-19",
+          "applicableFrom": "2013-01-01",
+          "royalty": {
+            "officialDisplay": "10%",
+            "contentLicenseRate": 10
+          }
+        }
+      ]
+    },
+    {
+      "code": "TV",
+      "nameZh": "吐瓦魯",
+      "nameEn": "Tuvalu",
+      "agreements": [
+        {
+          "label": "臺吐所得稅協定",
+          "effectiveDate": "2026-06-11",
+          "applicableFrom": "2027-01-01",
+          "royalty": {
+            "officialDisplay": "10%",
+            "contentLicenseRate": 10
+          }
+        }
+      ]
+    },
+    {
+      "code": "GB",
+      "nameZh": "英國",
+      "nameEn": "United Kingdom",
+      "agreements": [
+        {
+          "label": "臺英所得稅協定（含修約議定書）",
+          "effectiveDate": "2002-12-23",
+          "applicableFrom": "2003-01-01",
+          "royalty": {
+            "officialDisplay": "10%",
+            "contentLicenseRate": 10
+          }
+        }
+      ]
+    },
+    {
+      "code": "VN",
+      "nameZh": "越南",
+      "nameEn": "Vietnam",
+      "agreements": [
+        {
+          "label": "臺越所得稅協定",
+          "effectiveDate": "1998-05-06",
+          "applicableFrom": "1999-01-01",
+          "royalty": {
+            "officialDisplay": "15%",
+            "contentLicenseRate": 15
+          }
+        }
+      ]
+    }
   ]
 }
-
