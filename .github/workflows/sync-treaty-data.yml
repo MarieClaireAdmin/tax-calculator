@@ -24,7 +24,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
       - name: Verify official MOF data
         id: sync
         continue-on-error: true
@@ -43,4 +43,3 @@ jobs:
       - name: Report validation failure
         if: steps.sync.outcome == 'failure'
         run: exit 1
-
