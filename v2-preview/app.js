@@ -138,7 +138,7 @@ function onContent() {
   $('disp-cat').textContent = S.cat;
   $('disp-code').textContent = S.code;
   const royalty = S.code === '53';
-  $('step2-title').textContent = royalty ? '台灣／境外給付對象' : '所得人身分';
+  $('step2-title').textContent = royalty ? '給付對象稅務身分' : '所得人身分';
   $('identity-regular').classList.toggle('hidden', royalty);
   $('identity-royalty').classList.toggle('hidden', !royalty);
   activate('blk2', true);
@@ -171,10 +171,26 @@ function onRegularIdentity(event) {
 function onRoyaltyIdentity(event) {
   S.identity = event.target.value;
   const foreign = S.identity === 'foreign';
+  const foreignResident = S.identity === 'foreign183';
+
+  $('chk183-1').checked = false;
+  $('chk183-2').checked = false;
+  $('checklist-183').classList.toggle('hidden', !foreignResident);
   $('treaty-wrap').classList.toggle('hidden', !foreign);
+
+  if (!foreign) {
+    $('treaty-status').classList.add('hidden');
+    $('treaty-documents').classList.add('hidden');
+    S.treatyEvaluation = null;
+    S.treatyKey = '';
+    S.documentAvailability = '';
+    S.documentsReady = false;
+    document.querySelectorAll('input[name="document-availability"]').forEach((node) => { node.checked = false; });
+  }
+
   resetFrom(3);
   if (foreign) onTreatyInput();
-  else goStep3();
+  else if (!foreignResident) goStep3();
 }
 
 function on183Check() {
