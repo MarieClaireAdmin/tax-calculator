@@ -1,4 +1,5 @@
-import { decideRoyaltyRate, evaluateTreaty } from './treaty-engine.js';
+import { evaluateTreaty } from './treaty-engine.js';
+import { calculateAmounts } from './calculation-engine.js';
 
 const DEFAULT_CONFIG = {
   nhib: 2.11, nhiLaborThreshold: 20000, nhiSalaryThreshold: 29500,
@@ -152,14 +153,17 @@ function resetAllAfterContent() {
   $('treaty-status').classList.add('hidden');
   $('treaty-documents').classList.add('hidden');
   $('sel-country').value = '';
-  activate('blk3', false); activate('blk4', false); activate('blk5', false);
+  activate('blk3', false);
+  activate('blk4', false);
+  activate('blk5', false);
   clearResult();
 }
 
 function onRegularIdentity(event) {
   S.identity = event.target.value;
   $('checklist-183').classList.toggle('hidden', S.identity !== 'foreign183');
-  $('chk183-1').checked = false; $('chk183-2').checked = false;
+  $('chk183-1').checked = false;
+  $('chk183-2').checked = false;
   resetFrom(3);
   if (S.identity === 'local' || S.identity === 'foreign') goStep3();
 }
@@ -169,7 +173,8 @@ function onRoyaltyIdentity(event) {
   const foreign = S.identity === 'foreign';
   $('treaty-wrap').classList.toggle('hidden', !foreign);
   resetFrom(3);
-  if (foreign) onTreatyInput(); else goStep3();
+  if (foreign) onTreatyInput();
+  else goStep3();
 }
 
 function on183Check() {
@@ -192,6 +197,7 @@ function onTreatyInput() {
     S.treatyEvaluation = null;
     return;
   }
+
   const treatyKey = `${code}|${paymentDate}`;
   if (S.treatyKey && S.treatyKey !== treatyKey) {
     document.querySelectorAll('input[name="document-availability"]').forEach((node) => { node.checked = false; });
@@ -199,6 +205,7 @@ function onTreatyInput() {
     S.documentsReady = false;
   }
   S.treatyKey = treatyKey;
+
   const country = findCountry(code);
   S.treatyEvaluation = evaluateTreaty(country, paymentDate, syncStatus);
   renderTreatyStatus(country, paymentDate);
@@ -210,12 +217,20 @@ function renderTreatyStatus(country, paymentDate) {
   const card = $('treaty-status');
   card.className = `status-card ${evaluation.status}`;
   $('status-pill').textContent = evaluation.label;
-  $('status-rate').textContent = evaluation.status === 'applicable' ? '有租稅協定' : evaluation.status === 'sync_error' ? '需人工確認' : '本次適用 20%';
+  $('status-rate').textContent = evaluation.status === 'applicable'
+    ? '有租稅協定'
+    : evaluation.status === 'sync_error'
+      ? '需人工確認'
+      : '本次適用 20%';
+
   let message = evaluation.message;
   const future = country?.agreements?.find((agreement) => agreement.applicableFrom > paymentDate);
-  if (evaluation.status === 'applicable' && future) message += ` ${future.label}將自 ${future.applicableFrom} 起改為 ${future.royalty.contentLicenseRate}%。`;
+  if (evaluation.status === 'applicable' && future) {
+    message += ` ${future.label}將自 ${future.applicableFrom} 起改為 ${future.royalty.contentLicenseRate}%。`;
+  }
   $('status-message').textContent = message;
   card.classList.remove('hidden');
+
   const canPrepare = evaluation.status === 'applicable';
   $('treaty-documents').classList.toggle('hidden', !canPrepare);
   if (canPrepare) $('document-treaty-rate').textContent = `${evaluation.treatyRate}%`;
@@ -269,7 +284,9 @@ function goStep3() {
   if (S.code === '91') {
     S.taxmode = 'normal';
     goStep4();
-  } else activate('blk3', true);
+  } else {
+    activate('blk3', true);
+  }
 }
 
 function onTaxMode(event) {
@@ -282,7 +299,10 @@ function goStep4() {
   const isLocal = S.identity === 'local' || S.identity === 'foreign183';
   const needsUnion = isLocal && ['50', '9A', '9B'].includes(S.code);
   if (needsUnion) activate('blk4', true);
-  else { S.union = 'no'; goStep5(); }
+  else {
+    S.union = 'no';
+    goStep5();
+  }
 }
 
 function onUnion(event) {
@@ -305,88 +325,26 @@ function clearResult() {
 
 function calculate() {
   const raw = Number.parseFloat($('inp-amt').value);
-  if (!(raw > 0) || $('blk5').classList.contains('inactive')) { clearResult(); return; }
-
-  const isLocal = S.identity === 'local' || S.identity === 'foreign183';
-  const isForeign = S.identity === 'foreign';
-  const isNet = S.taxmode === 'net';
-  const hasUnion = S.union === 'yes';
-  const code = S.code;
-  const NHIB = CFG.nhib / 100;
-  let company = raw, taxAmt = 0, nhiAmt = 0, net = raw;
-  const notes = [];
-  let rateDecision = null;
-
-  const builtinCodes = ['50', '9A', '9B', '53', '91'];
-  const customType = CFG.incomeTypes?.find((type) => type.code === code && !builtinCodes.includes(type.code));
-
-  if (customType) {
-    if (isForeign) {
-      const rate = (customType.foreignRate || 20) / 100;
-      company = isNet && customType.hasNetForeign ? Math.round(raw / (1 - rate)) : raw;
-      taxAmt = Math.round(company * rate);
-      net = company - taxAmt;
-      notes.push(`外國人稅率 ${rate * 100}%`);
-    } else if (!customType.localTax) {
-      notes.push('本國人免扣繳');
-    } else {
-      const taxRate = (customType.localRate || 10) / 100;
-      const threshold = customType.localThreshold || 20010;
-      const nhiRate = customType.hasNhi && !hasUnion ? NHIB : 0;
-      if (isNet && raw >= threshold) company = Math.round(raw / (1 - taxRate - nhiRate));
-      taxAmt = company >= threshold ? Math.round(company * taxRate) : 0;
-      nhiAmt = nhiRate && company >= CFG.nhiLaborThreshold ? Math.round(company * nhiRate) : 0;
-      net = company - taxAmt - nhiAmt;
-    }
-  } else if (isForeign) {
-    if (code === '50') {
-      const boundary = isNet ? Math.round(44250 * .94) : 44250;
-      const rate = raw <= boundary ? .06 : .18;
-      company = isNet ? Math.round(raw / (1 - rate)) : raw;
-      taxAmt = Math.round(company * rate);
-      notes.push(rate === .06 ? '稅率 6%（≤44,250）' : '稅率 18%（>44,250）');
-    } else if (code === '9B' && raw <= 5000) {
-      notes.push('單次給付 ≤5,000，免扣繳');
-    } else if (code === '53') {
-      rateDecision = decideRoyaltyRate({ treatyEvaluation: S.treatyEvaluation, documentsReady: S.documentsReady });
-      const rate = rateDecision.rate / 100;
-      company = isNet ? Math.round(raw / (1 - rate)) : raw;
-      taxAmt = Math.round(company * rate);
-      if (rateDecision.canUseTreatyRate) notes.push(`協定優惠稅率 ${rateDecision.rate}%（文件已齊）`);
-      else if (rateDecision.treatyAvailable) notes.push('協定存在，但文件未齊，暫按 20%');
-      else notes.push('本次付款按無協定稅率 20%');
-    } else {
-      const rate = .20;
-      company = isNet ? Math.round(raw / (1 - rate)) : raw;
-      taxAmt = Math.round(company * rate);
-      notes.push('稅率 20%');
-    }
-    net = company - taxAmt;
-  } else {
-    let taxRate, taxThreshold, nhiThreshold;
-    if (code === '50') { taxRate = CFG.salaryRate / 100; taxThreshold = CFG.salaryThreshold; nhiThreshold = CFG.nhiSalaryThreshold; }
-    else if (code === '9A' || code === '9B') { taxRate = CFG.laborRate / 100; taxThreshold = CFG.laborThreshold; nhiThreshold = CFG.nhiLaborThreshold; }
-    else { taxRate = CFG.laborRate / 100; taxThreshold = CFG.laborThreshold; nhiThreshold = Number.MAX_SAFE_INTEGER; }
-    const nhiRate = hasUnion ? 0 : NHIB;
-    if (isNet) {
-      if (code === '50' && raw < nhiThreshold) company = raw;
-      else if (raw >= Math.round(nhiThreshold * (1 - nhiRate))) company = Math.round(raw / (1 - taxRate - nhiRate));
-      else if (raw >= taxThreshold) company = Math.round(raw / (1 - taxRate));
-    }
-    taxAmt = company >= taxThreshold ? Math.round(company * taxRate) : 0;
-    nhiAmt = nhiRate && company >= nhiThreshold ? Math.round(company * nhiRate) : 0;
-    net = company - taxAmt - nhiAmt;
-    notes.push(taxAmt ? `扣繳稅率 ${taxRate * 100}%` : '未達起扣標準，免扣繳');
-    if (hasUnion) notes.push('有工會，免扣補充保費');
+  if (!(raw > 0) || $('blk5').classList.contains('inactive')) {
+    clearResult();
+    return;
   }
 
+  const result = calculateAmounts({ raw, state: S, cfg: CFG });
+  if (!result) {
+    clearResult();
+    return;
+  }
+
+  const { company, taxAmt, nhiAmt, net, extraCost, notes, rateDecision } = result;
   $('r-company').textContent = money(company);
   $('r-tax').textContent = money(taxAmt);
   $('r-nhi').textContent = money(nhiAmt);
-  $('r-extra').textContent = money(isNet ? company - net : 0);
+  $('r-extra').textContent = money(extraCost);
   $('r-net').textContent = money(net);
-  $('lbl-net').textContent = isNet ? '驗算後所得人實拿金額' : '給付淨額';
+  $('lbl-net').textContent = S.taxmode === 'net' ? '驗算後所得人實拿金額' : '給付淨額';
   $('r-note').textContent = notes.join('　·　');
+
   const decisionBox = $('rate-decision');
   if (rateDecision) {
     decisionBox.classList.remove('hidden');
@@ -396,7 +354,10 @@ function calculate() {
       : rateDecision.treatyAvailable
         ? '雖有租稅協定，但三份文件無法全部取得或尚未確認，因此改用非協定稅率。'
         : '付款日沒有可套用的租稅協定優惠。';
-  } else decisionBox.classList.add('hidden');
+  } else {
+    decisionBox.classList.add('hidden');
+  }
+
   $('result-placeholder').classList.add('hidden');
   $('result-area').classList.remove('hidden');
 }
