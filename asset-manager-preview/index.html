@@ -1,1 +1,35 @@
-__TOO_LONG_PLACEHOLDER__
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#2f6f57">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="式典資材">
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="icon" href="./icon.svg" type="image/svg+xml">
+<title>式典資材｜跨裝置測試版</title>
+<link rel="stylesheet" href="./style.css">
+</head>
+<body>
+<header><div class="top"><div class="brand"><div class="logo">📦</div><span>式典資材</span></div><div class="top-actions"><button class="icon-btn" onclick="goMyBorrow()">我的借用</button><button class="icon-btn" onclick="goAdmin()">管理</button></div></div></header>
+<main>
+<div class="test-note">🧪 跨裝置介面測試版｜只使用假資料與本機暫存，不連正式 Google Sheet／Drive，也不會寫入任何正式資料。</div>
+<div id="installCard" class="install-card"><div><strong id="installTitle">網址直接開就能用</strong><small id="installText">不用安裝；常用時可加到主畫面或安裝成網頁 App。</small></div><div class="actions"><button id="installBtn" onclick="installApp()">固定使用</button><button onclick="dismissInstall()">先不用</button></div></div>
+<section id="home" class="view active"><div class="home-row"><div class="hero"><h1>今天要找什麼？</h1><p>按一個大類，就直接看那一類的照片牆；不需要再選第二層。</p><div id="catGrid" class="cat-grid"></div><div class="search-box"><div class="search-wrap"><input id="searchInput" inputmode="search" placeholder="知道名稱時才搜尋，例如：白色花器、耳機" onkeydown="if(event.key==='Enter') searchAssets()"><button class="btn secondary" onclick="searchAssets()">搜尋</button></div></div></div><div class="borrow-summary"><div><b>我的借用</b><small>測試資料：1 張使用中的借用單</small></div><button class="btn secondary" onclick="goMyBorrow()">查看</button></div></div></section>
+<section id="category" class="view"><div class="page-head"><button class="back-btn" onclick="goHome()">‹</button><div class="page-title"><h1 id="categoryTitle">照片牆</h1><p id="categorySubtitle">只顯示這一大類。</p></div></div><div id="assetGrid" class="grid"></div></section>
+<section id="cart" class="view"><div class="page-head"><button class="back-btn" onclick="goHome()">‹</button><div class="page-title"><h1>🧺 使用清單</h1><p>一次選好多項，最後只填一次使用資訊。</p></div></div><div class="panel"><div id="cartList" class="list"></div><div class="divider"></div><h2 class="section-title">這次使用</h2><div class="form-grid two"><div class="field"><label>使用日期</label><input id="useDate" type="date"></div><div class="field"><label>預計歸還日</label><input id="returnDate" type="date"></div><div class="field full"><label>法會／用途</label><input id="purpose" placeholder="例如：測試法會"></div></div><button class="btn primary wide" style="margin-top:14px" onclick="submitBorrow()">確認使用（測試）</button></div></section>
+<section id="myborrow" class="view"><div class="page-head"><button class="back-btn" onclick="goHome()">‹</button><div class="page-title"><h1>我的借用</h1><p>仍在使用中的借用單集中在這裡。</p></div></div><div id="borrowList" class="list"></div></section>
+<section id="admin" class="view"><div class="page-head"><button class="back-btn" onclick="goHome()">‹</button><div class="page-title"><h1>管理人</h1><p>這只是介面測試；正式版會用角色權限控制。</p></div></div><div class="admin-grid"><button class="admin-card" onclick="goAddAsset()"><span class="icon">➕</span><b>新增資材</b><p>拍照／選照片後建檔。</p></button><button class="admin-card" onclick="toast('測試版：全部資材介面待接資料層')"><span class="icon">📦</span><b>全部資材</b><p>相簿式瀏覽與搜尋。</p></button><button class="admin-card" onclick="toast('測試版：借出／歸還管理')"><span class="icon">↔️</span><b>借出／歸還</b><p>集中查看使用中的借用。</p></button><button class="admin-card" onclick="toast('測試版：待處理清單')"><span class="icon">⚠️</span><b>待處理</b><p>位置、數量、損壞、盤點差異。</p></button><button class="admin-card" onclick="toast('測試版：移動儲位')"><span class="icon">📍</span><b>移動儲位</b><p>只改位置，不改資材身分。</p></button><button class="admin-card" onclick="toast('測試版：盤點')"><span class="icon">✅</span><b>盤點</b><p>按儲位清點，差異先確認。</p></button></div></section>
+<section id="addasset" class="view"><div class="page-head"><button class="back-btn" onclick="goAdmin()">‹</button><div class="page-title"><h1>➕ 新增資材</h1><p>照片優先；照片只在這台裝置本機預覽。</p></div></div><div class="panel"><div class="photo-picker"><div style="font-size:42px">📷</div><b>拍照或選照片</b><p class="muted" style="margin:6px 0 12px">手機可直接拍照／選相片；桌機可選檔案。</p><input id="photoInput" type="file" accept="image/*" capture="environment" onchange="previewPhoto(event)"><div id="preview" class="preview"><img id="previewImg" alt="照片預覽"></div></div><div class="divider"></div><div class="test-note">🤖 AI 建議欄位在正式版會另外接服務；即使 AI 暫時不可用，人仍可手動選分類完成建檔。</div><div class="form-grid two"><div class="field"><label>大類</label><select><option>花器</option><option>裝飾用品</option><option>法會用品</option><option>服飾</option><option>器材</option><option>其他</option></select></div><div class="field"><label>管理方式</label><select><option>數量管理</option><option>單件追蹤</option><option>套組／整箱</option></select></div><div class="field full"><label>名稱</label><input placeholder="例如：白色圓形花器"></div><div class="field"><label>數量</label><input type="number" min="0" value="1"></div><div class="field"><label>存放位置</label><input placeholder="測試位置"></div><div class="field full"><label>儲位</label><input placeholder="測試儲位"></div></div><button class="btn primary wide" style="margin-top:14px" onclick="toast('測試完成：沒有寫入正式資料')">建立資材（測試）</button></div></section>
+</main>
+<div id="stickyCart" class="sticky-cart"><div><b id="cartCount">0 項</b><small> 已加入使用清單</small></div><button onclick="goCart()">查看清單</button></div>
+<div id="detailModal" class="modal" onclick="if(event.target===this) closeDetail()"><div class="sheet"><div class="sheet-head"><div><h2 id="detailName" style="margin:0">資材</h2><div id="detailMeta" class="muted" style="margin-top:5px"></div></div><button class="close-btn" onclick="closeDetail()">×</button></div><div id="detailPhoto" class="detail-photo"></div><div id="detailBody"></div></div></div>
+<div id="returnModal" class="modal" onclick="if(event.target===this) closeReturn()"><div class="sheet"><div class="sheet-head"><div><h2 style="margin:0">我要歸還</h2><div class="muted" style="margin-top:5px">選最符合這次歸還的狀況。</div></div><button class="close-btn" onclick="closeReturn()">×</button></div><div class="list" style="margin-top:16px"><button class="btn secondary wide" onclick="finishReturn('全部正常')">✅ 全部正常</button><button class="btn ghost wide" onclick="finishReturn('有損壞')">🛠️ 有損壞</button><button class="btn ghost wide" onclick="finishReturn('有遺失')">❓ 有遺失</button><button class="btn ghost wide" onclick="finishReturn('數量不同')">🔢 數量不同</button></div></div></div>
+<div id="installModal" class="modal" onclick="if(event.target===this) closeInstallHelp()"><div class="sheet"><div class="sheet-head"><div><h2 style="margin:0">固定在裝置上</h2><div id="installHelp" class="muted" style="margin-top:8px;line-height:1.7"></div></div><button class="close-btn" onclick="closeInstallHelp()">×</button></div></div></div>
+<div id="toast" class="toast">完成</div>
+<script src="./app.js" defer></script>
+</body>
+</html>
