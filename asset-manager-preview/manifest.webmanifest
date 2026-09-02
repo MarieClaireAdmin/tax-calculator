@@ -1,0 +1,13 @@
+{
+  "name": "式典資材管理",
+  "short_name": "式典資材",
+  "description": "式典資材跨裝置管理測試版",
+  "start_url": "./#home",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f6f5f1",
+  "theme_color": "#2f6f57",
+  "icons": [
+    {"src":"./icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any maskable"}
+  ]
+}
