@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="zh-Hant"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="color-scheme" content="light"><meta name="theme-color" content="#f7f6f2">
+<title>式典資材管理｜安裝入口</title>
+<style>
+:root{--bg:#f7f6f2;--card:#fff;--ink:#1d2925;--muted:#64716c;--line:#dedfd9;--accent:#235c49;--accent2:#194637;--soft:#eaf2ee}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans TC",sans-serif}
+.wrap{width:min(620px,100%);margin:auto;padding:28px 18px 48px}.hero{text-align:center;padding:24px 0 18px}.hero img{width:96px;height:96px;border-radius:22px;box-shadow:0 4px 18px #0002}h1{font-size:27px;margin:15px 0 6px}.sub{color:var(--muted);font-size:15px;margin:0}
+.card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:20px;margin:14px 0;box-shadow:0 2px 10px #00000008}h2{font-size:20px;margin:0 0 12px}p{line-height:1.65;margin:8px 0;color:#34423d}.steps{margin:14px 0 0;padding:0;list-style:none;counter-reset:s}.steps li{counter-increment:s;display:grid;grid-template-columns:32px 1fr;gap:10px;align-items:start;margin:13px 0;line-height:1.55}.steps li:before{content:counter(s);width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:var(--soft);color:var(--accent);font-weight:700}
+.btn{display:block;width:100%;border:0;border-radius:14px;padding:15px 16px;margin:12px 0 0;text-align:center;text-decoration:none;font-weight:700;font-size:17px;line-height:1.25;background:var(--accent);color:white;cursor:pointer}.btn:hover{background:var(--accent2)}.btn.secondary{background:#eef1ef;color:#23352f}.note{font-size:13px;color:var(--muted);line-height:1.55}.branch{display:none}.branch.active{display:block}.badge{display:inline-block;background:var(--soft);color:var(--accent);padding:6px 10px;border-radius:999px;font-size:13px;font-weight:700;margin-bottom:12px}.ok{font-weight:700;color:var(--accent)}footer{text-align:center;color:var(--muted);font-size:12px;margin-top:26px}code{font-family:ui-monospace,monospace}
+</style></head><body><main class="wrap">
+<section class="hero"><img src="../asset-manager-preview/app-icon-runtime.png" alt="式典資材管理圖示"><h1>式典資材管理</h1><p class="sub">安裝入口會依你的裝置，自動顯示正確步驟。</p></section>
+
+<section id="ios" class="branch card" aria-live="polite"><div class="badge">iPhone / iPad</div><h2>加入主畫面</h2><ol class="steps">
+<li><div><b>下載安裝描述檔</b><a class="btn" id="iosDownload" href="install.mobileconfig">下載式典資材管理</a></div></li>
+<li><div>開啟 <b>設定</b>，點「<b>已下載描述檔</b>」。如果沒看到，前往「<b>一般 → VPN 與裝置管理</b>」。</div></li>
+<li><div>點「<b>安裝</b>」完成。主畫面會出現「式典資材管理」。</div></li></ol>
+<p class="note">此描述檔只建立一個主畫面 Web Clip，不會加入 VPN、帳號、憑證或裝置管理。</p></section>
+
+<section id="android" class="branch card" aria-live="polite"><div class="badge">Android</div><h2>加入主畫面</h2><ol class="steps">
+<li><div><b>先安裝 Native Alpha</b><a class="btn" id="playLink" href="https://play.google.com/store/apps/details?id=com.cylonid.nativealpha" target="_blank" rel="noopener">前往 Google Play 安裝</a><p class="note">已經安裝過的話，直接做下一步。</p></div></li>
+<li><div><b>下載式典資材管理設定</b><a class="btn" id="androidSetup" href="setup" download="式典資材管理設定">下載安裝設定</a></div></li>
+<li><div>開啟 <b>Native Alpha → Settings → Import</b>，選剛下載的「式典資材管理設定」。</div></li>
+<li><div>看到建立主畫面捷徑的提示時按 <b>OK / Add</b>。名稱與正式圖示會自動帶入，不需要自己找圖片。</div></li></ol>
+<p class="note">第一次使用拍照功能時，Android 仍會要求你本人允許相機／照片權限。</p></section>
+
+<section id="desktop" class="branch card" aria-live="polite"><div class="badge">電腦</div><h2>直接使用</h2><p>電腦不需要安裝手機元件，直接開啟正式系統即可。</p><a class="btn" id="prodLink" href="https://script.google.com/macros/s/AKfycbyxk4bHlNqU90sm6w8yjsHvdda0LcW96JII_5xZwVTZ5M6EBTE2g-yU2RYdjq-WnW_7/exec">開啟式典資材管理</a></section>
+
+<section id="fallback" class="branch card"><h2>正在判斷裝置</h2><p>如果畫面沒有自動切換，請重新整理一次。</p></section>
+<footer>式典資材管理｜統一安裝入口</footer></main>
+<script>
+function detectDevice(n={}){
+  const ua=(n.userAgent||'').toString();
+  const platform=(n.platform||'').toString();
+  const uaPlatform=(n.uaPlatform||'').toString();
+  const touch=Number(n.maxTouchPoints||0);
+  const standalone=!!n.standalone;
+  const isiOSUA=/iPad|iPhone|iPod/i.test(ua);
+  const isiPadDesktop=(platform==='MacIntel'||/Macintosh/i.test(ua)) && touch>1;
+  const isiOSFeature=standalone && (/Mac|iPhone|iPad|iPod/i.test(platform)||/Macintosh|iPhone|iPad|iPod/i.test(ua));
+  if(isiOSUA||isiPadDesktop||isiOSFeature) return 'ios';
+  const isAndroidData=/Android/i.test(uaPlatform);
+  const isAndroidUA=/Android/i.test(ua);
+  if(isAndroidData||isAndroidUA) return 'android';
+  return 'desktop';
+}
+function runtimeInfo(){
+  return {userAgent:navigator.userAgent||'',platform:navigator.platform||'',uaPlatform:(navigator.userAgentData&&navigator.userAgentData.platform)||'',maxTouchPoints:navigator.maxTouchPoints||0,standalone:navigator.standalone||false};
+}
+function showBranch(id){document.querySelectorAll('.branch').forEach(e=>e.classList.remove('active'));const el=document.getElementById(id);(el||document.getElementById('fallback')).classList.add('active');document.documentElement.dataset.device=id;}
+const force=new URLSearchParams(location.search).get('force');showBranch(['ios','android','desktop'].includes(force)?force:detectDevice(runtimeInfo()));
+</script></body></html>
