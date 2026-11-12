@@ -651,6 +651,60 @@ body:has(.mobile-nav-layer){overflow:hidden}
  .compact-claim-actions .row-view span{font-size:12px}
 }
 @media(max-width:370px){.compact-claim-actions .row-view{padding-left:7px!important;padding-right:7px!important}}
+
+/* UX v1.10 — scroll-persistent context without sacrificing mobile reading space. */
+:root{--app-topbar-height:64px;--history-search-top:164px;--history-header-top:240px}
+.claims-page .history-sticky{position:sticky;top:var(--app-topbar-height);z-index:40;background:var(--paper);padding:10px 0 0;border-bottom:1px solid #dfe4d9;box-shadow:0 5px 15px rgba(32,41,35,.045)}
+.claims-page .history-sticky .page-head{align-items:center;margin:0;gap:12px}
+.claims-page .history-sticky .eyebrow,.claims-page .history-sticky .subtext{display:none}
+.claims-page .history-sticky .page-title{margin:0;font-size:clamp(22px,2vw,29px);line-height:1.25}
+.claims-page .history-sticky .tabs{margin:4px 0 0;gap:22px}
+.claims-page .history-sticky .tabs .tab{padding:9px 4px 10px;font-size:14px;min-height:43px}
+.claims-page .history-card{margin-top:12px}
+.claim-icon-action{width:44px;height:44px;min-width:44px;min-height:44px;display:inline-grid;place-items:center;background:white;border:1px solid #d5ddd3;border-radius:9px;color:#314b3a;cursor:pointer;transition:background .12s,border-color .12s}
+.claim-icon-action .icon{width:20px;height:20px}
+.claim-icon-action:hover,.claim-icon-action:focus-visible{background:#edf3eb;border-color:#719278}
+.claim-icon-action.danger{color:#a6534d}
+.claim-icon-action.danger:hover,.claim-icon-action.danger:focus-visible{background:#fbefec;border-color:#ba756e}
+.compact-claim-actions{display:flex;gap:5px;align-items:center;flex-shrink:0}
+.detail-action-btn.icon-btn{width:44px!important;height:44px!important;min-width:44px!important;min-height:44px!important;padding:0!important;display:inline-grid;place-items:center}
+.detail-action-btn .icon{width:20px;height:20px}
+.icon-filter-toggle{position:relative;width:44px!important;min-width:44px;max-width:44px;padding:0!important;flex:none}
+.icon-filter-toggle .icon{width:21px;height:21px}
+.icon-filter-toggle[aria-expanded=true]{background:#e7eee6;border-color:#849c84}
+.filter-dot{position:absolute;right:5px;top:5px;width:7px;height:7px;border-radius:50%;background:#b87b3f;box-shadow:0 0 0 2px white}
+@media(min-width:1101px){
+ .claims-page .history-search{position:sticky;top:var(--history-search-top);z-index:25;background:white}
+ .claims-page .record-table thead th{position:sticky;top:var(--history-header-top);z-index:24}
+}
+@media(max-width:1100px){
+ .claims-page .history-sticky{top:var(--app-topbar-height);padding:8px 0 0}
+ .claims-page .history-search{position:static!important;top:auto!important}
+ .claims-page .record-table thead th{position:static!important;top:auto!important}
+ .claims-page .history-sticky .page-head .btn{min-height:44px}
+ .claims-page .history-sticky .tabs{gap:18px}
+}
+@media(max-width:700px){
+ .content:has(.claims-page){padding-top:0}
+ .claims-page .history-sticky{padding:11px 0 0}
+ .claims-page .history-sticky .page-title{font-size:23px}
+ .claims-page .history-sticky .page-head .btn{min-height:44px;font-size:12px;padding:8px 10px}
+ .claims-page .history-sticky .tabs{margin-top:3px;margin-bottom:0}
+ .claims-page .history-sticky .tabs .tab{padding:7px 2px 9px;min-height:42px}
+ .claims-page .history-card{margin-top:10px}
+ .claims-page .history-search{display:grid;grid-template-columns:minmax(0,1fr) 44px;gap:8px;padding:10px}
+ .claims-page .history-search .searchbox{min-width:0;min-height:44px}
+ .claims-page .history-search .advanced-filters{grid-column:1/-1}
+ .claims-page .compact-claim-tail{flex-wrap:wrap;gap:7px}
+ .claims-page .compact-claim-actions{margin-left:auto;gap:5px}
+ .mobile-menu-btn{min-width:44px;width:44px;padding:0}
+ .mobile-menu-btn span{display:none}
+}
+@media(max-width:360px){
+ .claims-page .history-sticky .page-title{font-size:21px}
+ .claims-page .history-sticky .page-head .btn{padding:7px 8px;font-size:11.5px}
+ .claims-page .compact-claim-actions{gap:3px}
+}
 </style>
 </head>
 <body>
@@ -671,6 +725,7 @@ body:has(.mobile-nav-layer){overflow:hidden}
  <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></symbol>
  <symbol id="i-more" viewBox="0 0 24 24"><circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/></symbol>
  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></symbol>
+ <symbol id="i-filter" viewBox="0 0 24 24"><path d="M3 5h18l-7.2 8v5l-3.6 2v-7L3 5z"/></symbol>
  <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 2 3 6v6c0 5 4 8 9 10 5-2 9-5 9-10V6z"/><path d="m8 12 3 3 5-6"/></symbol>
  <symbol id="i-warning" viewBox="0 0 24 24"><path d="m12 3 10 18H2zM12 9v5m0 3v.1"/></symbol>
  <symbol id="i-close" viewBox="0 0 24 24"><path d="M5 5 19 19M19 5 5 19"/></symbol>
@@ -793,7 +848,7 @@ function crumbTrail(){let seg=`<button type="button" class="crumb-link" data-act
  if(state.page==='expense')return `${seg}<span class="crumb-sep">›</span><b aria-current="page">費用報支</b>`;
  return `${seg}<span class="crumb-sep">›</span><button type="button" class="crumb-link" data-act="go-expense">費用報支</button><span class="crumb-sep">›</span><b aria-current="page">${currentPageName()}</b>`;
 }
-function layout(content){const n=state.drafts.length;return `<div class="app-shell"><aside class="sidebar"><div class="brand"><div class="brand-symbol">M.</div><div><div class="brand-name">公司內部工作平台</div><div class="brand-en">INTERNAL WORKSPACE</div></div></div><nav class="global-nav" aria-label="主要導覽">${globalNav()}</nav><div class="side-foot"><div><span class="mini-dot"></span>UX/UI 獨立操作原型</div>虛構身分與資料 · 本機儲存<br>未連接 F3、公司帳號或正式 PDF。</div></aside><section class="main"><div class="topbar"><div class="mobile-apphead"><button type="button" class="mobile-menu-btn" data-act="mobile-menu" aria-label="打開工作選單" aria-haspopup="dialog" aria-expanded="${state.mobileNavOpen?'true':'false'}">${icon('menu','sm')}<span>選單</span></button><div class="mobile-current"><span class="mobile-brand-symbol" aria-hidden="true">M.</span><span class="mobile-current-text"><b>${currentPageName()}</b><small>${state.page==='home'?'所有工作工具':'平台 › 費用報支'} · 假資料</small></span></div>${state.page==='form'?`<span class="mobile-save-indicator" data-state="${state.saveState}" aria-label="${esc(state.saveMessage)}" title="${esc(state.saveMessage)}"><span class="mobile-save-label">${state.saveState==='saved'?'本機已存':state.saveState==='saving'?'保存中':state.saveState==='error'?'保存失敗':'未儲存'}</span></span>`:''}</div><div class="breadcrumbs desktop-breadcrumbs" aria-label="目前所在位置">${crumbTrail()}</div><div class="topright">${state.page==='form'?`<div class="save-control"><span class="save-badge" data-state="${state.saveState}" role="status" aria-live="polite"><span class="save-dot"></span><span id="saveStatus">${esc(state.saveMessage)}</span></span><button id="retrySave" class="tiny-link" data-act="retry-save" ${state.saveState==='error'?'':'hidden'}>重試保存</button></div>`:''}<span class="test-tag">UX v1.9 · 非正式</span><span class="small muted top-username">林語安</span><span class="user-bubble">安</span></div></div><main class="content" id="primaryContent">${content}</main></section></div>${state.mobileNavOpen?`<div class="mobile-nav-layer"><button type="button" class="mobile-nav-scrim" data-act="close-mobile-menu" aria-label="關閉工作選單"></button><section class="mobile-nav-panel" role="dialog" aria-modal="true" aria-labelledby="mobileNavTitle"><div class="mobile-nav-heading"><div><div class="brand-name" id="mobileNavTitle">公司內部工作平台</div><small>僅供虛構資料測試</small></div><button type="button" class="mobile-nav-close" data-act="close-mobile-menu" aria-label="關閉選單">${icon('close')}</button></div><nav aria-label="手機工作導覽">${globalNav()}</nav><p class="mobile-nav-footer">請勿輸入真實資料。此原型只保存於目前的瀏覽器。</p></section></div>`:''}${state.modal?modalHTML():''}`;}
+function layout(content){const n=state.drafts.length;return `<div class="app-shell"><aside class="sidebar"><div class="brand"><div class="brand-symbol">M.</div><div><div class="brand-name">公司內部工作平台</div><div class="brand-en">INTERNAL WORKSPACE</div></div></div><nav class="global-nav" aria-label="主要導覽">${globalNav()}</nav><div class="side-foot"><div><span class="mini-dot"></span>UX/UI 獨立操作原型</div>虛構身分與資料 · 本機儲存<br>未連接 F3、公司帳號或正式 PDF。</div></aside><section class="main"><div class="topbar"><div class="mobile-apphead"><button type="button" class="mobile-menu-btn" data-act="mobile-menu" aria-label="打開工作選單" aria-haspopup="dialog" aria-expanded="${state.mobileNavOpen?'true':'false'}">${icon('menu','sm')}<span>選單</span></button><div class="mobile-current"><span class="mobile-brand-symbol" aria-hidden="true">M.</span><span class="mobile-current-text"><b>${state.page==='claims'?'費用報支':currentPageName()}</b><small>${state.page==='home'?'所有工作工具':'平台 › 費用報支'} · 假資料</small></span></div>${state.page==='form'?`<span class="mobile-save-indicator" data-state="${state.saveState}" aria-label="${esc(state.saveMessage)}" title="${esc(state.saveMessage)}"><span class="mobile-save-label">${state.saveState==='saved'?'本機已存':state.saveState==='saving'?'保存中':state.saveState==='error'?'保存失敗':'未儲存'}</span></span>`:''}</div><div class="breadcrumbs desktop-breadcrumbs" aria-label="目前所在位置">${crumbTrail()}</div><div class="topright">${state.page==='form'?`<div class="save-control"><span class="save-badge" data-state="${state.saveState}" role="status" aria-live="polite"><span class="save-dot"></span><span id="saveStatus">${esc(state.saveMessage)}</span></span><button id="retrySave" class="tiny-link" data-act="retry-save" ${state.saveState==='error'?'':'hidden'}>重試保存</button></div>`:''}<span class="test-tag">UX v1.10 · 非正式</span><span class="small muted top-username">林語安</span><span class="user-bubble">安</span></div></div><main class="content" id="primaryContent">${content}</main></section></div>${state.mobileNavOpen?`<div class="mobile-nav-layer"><button type="button" class="mobile-nav-scrim" data-act="close-mobile-menu" aria-label="關閉工作選單"></button><section class="mobile-nav-panel" role="dialog" aria-modal="true" aria-labelledby="mobileNavTitle"><div class="mobile-nav-heading"><div><div class="brand-name" id="mobileNavTitle">公司內部工作平台</div><small>僅供虛構資料測試</small></div><button type="button" class="mobile-nav-close" data-act="close-mobile-menu" aria-label="關閉選單">${icon('close')}</button></div><nav aria-label="手機工作導覽">${globalNav()}</nav><p class="mobile-nav-footer">請勿輸入真實資料。此原型只保存於目前的瀏覽器。</p></section></div>`:''}${state.modal?modalHTML():''}`;}
 function home(){return `<section class="platform-home"><div class="platform-intro"><div class="eyebrow">MC · INTERNAL WORKSPACE</div><h1>公司內部工作平台</h1><p>選擇今天要使用的工作工具。</p><span class="demo-disclaimer">僅為假資料體驗版；目前只有費用報支提供互動示範</span></div>
 <div class="section-head"><h2>我的工作工具</h2><span class="small muted">已提供示範的工具可點入；其餘尚未開放</span></div>
 <div class="workspace-tools" role="list" aria-label="公司工作工具">
@@ -807,10 +862,31 @@ function expenseHome(){return `<section class="expense-landing"><div class="hero
   <button type="button" class="shortcut" data-act="go-drafts"><span class="shortcut-icon">${icon('folder','lg')}</span><strong>繼續草稿 <span class="shortcut-count">${state.drafts.length}</span></strong><small>接著填尚未建立的單據</small></button>
   <button type="button" class="shortcut" data-act="go-claims"><span class="shortcut-icon">${icon('history','lg')}</span><strong>歷史單據 <span class="shortcut-count">${state.records.length}</span></strong><small>搜尋、查看或複製已建立單據</small></button>
  </div><p class="demo-disclaimer expense-note">目前只提供本機假資料示範；正式 PDF、公司登入及雲端儲存尚未整合，紙本簽核規則不變。</p></section>`;}
-function moreIconButton(r){return `<button type="button" class="more-actions-btn icon-only-more" title="更多操作：${esc(r.project)}" aria-label="${esc(r.project)}的更多操作" aria-haspopup="menu" data-act="toggle-menu" data-id="${esc(r.id)}" aria-expanded="${state.menu===r.id}">${icon('more','sm')}</button>`;}
-function viewRowButton(r){return btn(`${icon('eye','sm')}<span>查看</span>`,'view','secondary small row-view',`data-id="${esc(r.id)}" title="查看：${esc(r.project)}" aria-label="查看單據：${esc(r.project)}"`);}
-function claimList(){const items=state.records.filter(r=>(state.filter==='all'||(state.filter==='normal'?r.status==='normal':r.status==='void'))&&(`${r.number} ${r.project}`.toLowerCase()).includes(state.search.toLowerCase())&&(!state.dateFrom||r.date>=state.dateFrom)&&(!state.dateTo||r.date<=state.dateTo)&&(!state.amountQuery||String(gross(r.lines)).includes(state.amountQuery.replaceAll(',',''))));const compact=items.map(r=>`<article class="compact-claim" role="listitem" data-record-id="${esc(r.id)}"><div class="compact-claim-head"><div class="compact-claim-name"><strong class="compact-reason">${esc(r.project||'未填寫報支事由')}</strong><span class="compact-ref mono">${esc(r.number)}</span></div><div class="compact-claim-money">${amt(net(r.lines))}${pill(r)}</div></div><div class="compact-claim-tail"><div class="compact-claim-meta"><time datetime="${esc(r.date)}">${esc(r.date)}</time><span aria-hidden="true">·</span><span>${r.lines.length} 筆明細</span></div><div class="compact-claim-actions">${viewRowButton(r)}${r.status==='normal'?`<div class="menu-wrap">${moreIconButton(r)}${state.menu===r.id?menuHTML(r):''}</div>`:''}</div></div></article>`).join('');return `<section class="claims-page"><div class="page-head"><div><div class="eyebrow">EXPENSE OVERVIEW</div><h1 class="page-title">歷史單據</h1><p class="subtext">查詢已建立的報支單；草稿請到「我的草稿」。</p></div>${btn(`${icon('plus')} 新增報支單`,'new','primary')}</div><div class="tabs"><button class="tab active" data-act="go-claims">歷史單據 <span class="muted">${state.records.length}</span></button><button class="tab" data-act="go-drafts">我的草稿 <span class="muted">${state.drafts.length}</span></button></div><div class="card"><div class="history-search"><label class="searchbox">${icon('search','sm')}<input id="historyQuery" placeholder="搜尋單號或報支事由" aria-label="搜尋單號或報支事由" value="${esc(state.search)}"></label><button type="button" class="mobile-filter-toggle" data-act="toggle-filters" aria-expanded="${state.filtersOpen}">${icon('chevron','sm')} 進階篩選 ${state.filtersOpen?'收合':'展開'}</button><div class="advanced-filters ${state.filtersOpen?'expanded':''}"><label class="date-filter-inline"><span>日期起</span><input id="historyFrom" class="select" type="date" aria-label="報支日期起" value="${esc(state.dateFrom)}"></label><label class="date-filter-inline"><span>日期迄</span><input id="historyTo" class="select" type="date" aria-label="報支日期迄" value="${esc(state.dateTo)}"></label><input id="historyAmount" class="select" inputmode="numeric" aria-label="報帳金額搜尋" placeholder="報帳金額" value="${esc(state.amountQuery)}" style="width:125px"><select id="historyFilter" class="select" aria-label="篩選單據狀態"><option value="all" ${state.filter==='all'?'selected':''}>全部狀態</option><option value="normal" ${state.filter==='normal'?'selected':''}>正常</option><option value="void" ${state.filter==='void'?'selected':''}>作廢</option></select><button type="button" class="filter-clear" data-act="clear-filters">清除條件</button></div></div><div class="history-result-count" role="status">顯示 ${items.length} 筆單據</div><div class="record-wrap"><table class="record-table" data-view="claims"><thead><tr><th>報支事由 / 單號</th><th>報支日期</th><th>明細</th><th>應付／應退</th><th>單據狀態</th><th>操作</th></tr></thead><tbody>${items.map(r=>`<tr><td><strong class="claim-reason-title">${esc(r.project||'未填寫報支事由')}</strong><div class="claim-id-secondary mono">${esc(r.number)}</div></td><td>${esc(r.date)}</td><td>${r.lines.length} 筆</td><td>${amt(net(r.lines))}</td><td>${pill(r)}</td><td><div class="btnline">${viewRowButton(r)}${r.status==='normal'?`<div class="menu-wrap">${moreIconButton(r)}${state.menu===r.id?menuHTML(r):''}</div>`:''}</div></td></tr>`).join('')}</tbody></table><div class="compact-history-list" role="list" aria-label="歷史單據清單">${compact}</div>${!items.length?'<div class="empty">沒有符合條件的單據。可以調整搜尋條件。</div>':''}</div></div><div class="notice mt15">僅為本機示範資料。正式版只能查詢本人，作廢必須經後端權限檢查並留下紀錄。</div></section>`;}
-function menuHTML(r){return `<div class="popup-menu" role="menu"><button role="menuitem" data-act="copy-record" data-id="${esc(r.id)}">${icon('copy','sm')}複製為新單</button><button role="menuitem" class="danger" data-act="void-record" data-id="${esc(r.id)}">${icon('trash','sm')}作廢單據</button></div>`;}
+function claimIconAction(r,action,iconName,label,extraClass=''){
+ return `<button type="button" class="claim-icon-action ${extraClass}" data-act="${action}" data-id="${esc(r.id)}" aria-label="${label}：${esc(r.project)}" title="${label}：${esc(r.project)}">${icon(iconName,'lg')}</button>`;
+}
+function claimActions(r){return `<div class="compact-claim-actions" role="group" aria-label="${esc(r.project)}的單據操作">
+ ${claimIconAction(r,'view','eye','查看單據')}
+ ${r.status==='normal'?`${claimIconAction(r,'copy-record','copy','複製為新報支單')}`:''}
+ </div>`;}
+function claimList(){
+ const items=state.records.filter(r=>(state.filter==='all'||(state.filter==='normal'?r.status==='normal':r.status==='void'))&&(`${r.number} ${r.project}`.toLowerCase()).includes(state.search.toLowerCase())&&(!state.dateFrom||r.date>=state.dateFrom)&&(!state.dateTo||r.date<=state.dateTo)&&(!state.amountQuery||String(gross(r.lines)).includes(state.amountQuery.replaceAll(',',''))));
+ const compact=items.map(r=>`<article class="compact-claim" role="listitem" data-record-id="${esc(r.id)}">
+ <div class="compact-claim-head"><div class="compact-claim-name"><strong class="compact-reason">${esc(r.project||'未填寫報支事由')}</strong><span class="compact-ref mono">${esc(r.number)}</span></div><div class="compact-claim-money">${amt(net(r.lines))}${pill(r)}</div></div>
+ <div class="compact-claim-tail"><div class="compact-claim-meta"><time datetime="${esc(r.date)}">${esc(r.date)}</time><span aria-hidden="true">·</span><span>${r.lines.length} 筆明細</span></div>${claimActions(r)}</div></article>`).join('');
+ const hasFilters=!!(state.dateFrom||state.dateTo||state.amountQuery||state.filter!=='all');
+ return `<section class="claims-page">
+ <div class="history-sticky" id="historySticky" aria-label="歷史單據固定導覽">
+ <div class="page-head"><div><div class="eyebrow">EXPENSE OVERVIEW</div><h1 class="page-title">歷史單據</h1><p class="subtext">查詢已建立的報支單；草稿請到「我的草稿」。</p></div>${btn(`${icon('plus')} 新增報支單`,'new','primary')}</div>
+ <div class="tabs" role="group" aria-label="單據分類"><button class="tab active" data-act="go-claims" aria-current="page">歷史單據 <span class="muted">${state.records.length}</span></button><button class="tab" data-act="go-drafts">我的草稿 <span class="muted">${state.drafts.length}</span></button></div>
+ </div>
+ <div class="card history-card"><div class="history-search"><label class="searchbox">${icon('search','sm')}<input id="historyQuery" placeholder="搜尋報支事由／單號" aria-label="搜尋單號或報支事由" value="${esc(state.search)}"></label>
+ <button type="button" class="mobile-filter-toggle icon-filter-toggle ${hasFilters?'has-filter':''}" data-act="toggle-filters" title="${state.filtersOpen?'收合':'展開'}進階篩選" aria-label="${state.filtersOpen?'收合':'展開'}進階篩選${hasFilters?'（已有篩選條件）':''}" aria-expanded="${state.filtersOpen}">${icon('filter','lg')}${hasFilters?'<span class="filter-dot" aria-hidden="true"></span>':''}</button>
+ <div class="advanced-filters ${state.filtersOpen?'expanded':''}"><label class="date-filter-inline"><span>日期起</span><input id="historyFrom" class="select" type="date" aria-label="報支日期起" value="${esc(state.dateFrom)}"></label><label class="date-filter-inline"><span>日期迄</span><input id="historyTo" class="select" type="date" aria-label="報支日期迄" value="${esc(state.dateTo)}"></label><input id="historyAmount" class="select" inputmode="numeric" aria-label="報帳金額搜尋" placeholder="報帳金額" value="${esc(state.amountQuery)}" style="width:125px"><select id="historyFilter" class="select" aria-label="篩選單據狀態"><option value="all" ${state.filter==='all'?'selected':''}>全部狀態</option><option value="normal" ${state.filter==='normal'?'selected':''}>正常</option><option value="void" ${state.filter==='void'?'selected':''}>作廢</option></select><button type="button" class="filter-clear" data-act="clear-filters">清除條件</button></div></div>
+ <div class="history-result-count" role="status">顯示 ${items.length} 筆單據</div><div class="record-wrap"><table class="record-table" data-view="claims"><thead><tr><th>報支事由 / 單號</th><th>報支日期</th><th>明細</th><th>應付／應退</th><th>單據狀態</th><th>操作</th></tr></thead><tbody>${items.map(r=>`<tr><td><strong class="claim-reason-title">${esc(r.project||'未填寫報支事由')}</strong><div class="claim-id-secondary mono">${esc(r.number)}</div></td><td>${esc(r.date)}</td><td>${r.lines.length} 筆</td><td>${amt(net(r.lines))}</td><td>${pill(r)}</td><td>${claimActions(r)}</td></tr>`).join('')}</tbody></table>
+ <div class="compact-history-list" role="list" aria-label="歷史單據清單">${compact}</div>${!items.length?'<div class="empty">沒有符合條件的單據。可以調整搜尋條件。</div>':''}</div></div>
+ <div class="notice mt15">僅為本機示範資料。正式版只能查詢本人，作廢必須經後端權限檢查並留下紀錄。</div></section>`;
+}
 function draftsPage(){return `<div class="page-head"><div><div class="eyebrow">UNFINISHED WORK</div><h1 class="page-title">我的草稿</h1><p class="subtext">選「繼續填寫」可回到上次的內容；草稿僅存在這個瀏覽器。</p></div>${btn(`${icon('plus')} 新增報支單`,'new','primary')}</div><div class="tabs"><button class="tab" data-act="go-claims">歷史單據</button><button class="tab active" data-act="go-drafts">我的草稿 ${state.drafts.length}</button></div><div class="card"><div class="record-wrap"><table class="record-table" data-view="drafts"><thead><tr><th>報支事由</th><th>明細筆數</th><th>更新時間</th><th>應付／應退</th><th>操作</th></tr></thead><tbody>${state.drafts.map(d=>`<tr><td><b>${esc(d.header.project||'尚未命名的草稿')}</b><div><span class="status draft">未送出</span></div></td><td>${d.lines.length} 筆</td><td>${esc(d.updatedAt||'剛剛')}</td><td>${amt(net(d.lines))}</td><td><div class="btnline">${btn('繼續填寫','load-draft','primary small',`data-id="${esc(d.id)}"`)}<button class="icon-btn danger" title="刪除草稿" aria-label="刪除草稿" data-act="delete-draft" data-id="${esc(d.id)}">${icon('trash')}</button></div></td></tr>`).join('')}</tbody></table>${!state.drafts.length?'<div class="empty">目前沒有草稿。開始填單後，內容會自動保存在這個瀏覽器。</div>':''}</div></div><div class="notice mt15">這是 UX 原型的本機保存效果。正式版需由 F3 後端保存並支援跨裝置、權限隔離與版本衝突處理。</div>`;}
 function textField(id,label,value,placeholder='',extra='',hint=''){return `<div class="field" id="field-${id}"><label for="${id}">${label}</label><input id="${id}" value="${esc(value)}" placeholder="${esc(placeholder)}" ${extra}><span class="error-text" id="error-${id}"></span>${hint?`<span class="hint">${hint}</span>`:''}</div>`;}
 function fieldSelect(id,label,options,value){return `<div class="field" id="field-${id}"><label for="${id}">${label}</label><select id="${id}">${options.map(([v,t])=>`<option value="${esc(v)}" ${String(v)===String(value)?'selected':''}>${esc(t)}</option>`).join('')}</select><span class="error-text" id="error-${id}"></span></div>`;}
@@ -839,7 +915,7 @@ function formPage(){
  <div class="detail-list">${l.map((x,i)=>`<div class="detail-item ${ui.recentAdded===i?'recent-detail':''}" id="detail-${i}" tabindex="-1" aria-label="第 ${i+1} 筆費用">
  <div class="detail-description"><strong>${i+1}. ${esc(x.category)}</strong><small>${esc(x.summary)} · ${esc(x.payeeName)}</small><small>${esc(x.date)} · ${esc(x.voucher)}${x.temporary?' · 本筆臨時':''}</small></div>
  <div class="detail-money">${amt(Number(x.gross)+Number(x.advance))}<div class="mini-note right">報帳 ${fmt(x.gross)} · 預支 ${x.advance<0?'('+fmt(-x.advance)+')':'0'}</div></div>
- <div class="detail-actions"><button title="編輯第 ${i+1} 筆" aria-label="編輯第 ${i+1} 筆" class="detail-action-btn icon-btn" data-act="edit-line" data-i="${i}">${icon('edit')}<span>編輯</span></button><button title="複製第 ${i+1} 筆" aria-label="複製第 ${i+1} 筆" class="detail-action-btn icon-btn" data-act="copy-line" data-i="${i}">${icon('copy')}<span>複製</span></button><button title="刪除第 ${i+1} 筆" aria-label="刪除第 ${i+1} 筆" class="detail-action-btn icon-btn danger" data-act="delete-line" data-i="${i}">${icon('trash')}<span>刪除</span></button></div></div>`).join('')}</div>
+ <div class="detail-actions"><button title="編輯第 ${i+1} 筆" aria-label="編輯第 ${i+1} 筆" class="detail-action-btn icon-btn" data-act="edit-line" data-i="${i}">${icon('edit')}</button><button title="複製第 ${i+1} 筆" aria-label="複製第 ${i+1} 筆" class="detail-action-btn icon-btn" data-act="copy-line" data-i="${i}">${icon('copy')}</button><button title="刪除第 ${i+1} 筆" aria-label="刪除第 ${i+1} 筆" class="detail-action-btn icon-btn danger" data-act="delete-line" data-i="${i}">${icon('trash')}</button></div></div>`).join('')}</div>
  <div class="detail-bottom">${!ui.editorOpen?`${btn(`${icon('plus','sm')} 新增下一筆費用`,'toggle-editor','primary')}<button class="tiny-link" data-act="reuse-last">以相同日期與付款對象新增</button>`:''}</div></section>`:'';
  const editorHTML=ui.editorOpen?`<section class="form-card card" id="lineEditor" aria-label="費用輸入">
  ${sectionTitle('02',c.editIndex>=0?`編輯第 ${c.editIndex+1} 筆費用`:'填寫一筆費用',`${c.editIndex>=0?btn('取消編輯','cancel-edit','tertiary small'):''}`)}
@@ -902,7 +978,16 @@ function readModal(){const m=state.modal;if(!m)return '';
  return '';
 }
 function modalHTML(){return `<div class="modal-scrim" data-scrim="true">${readModal()}</div>`;}
-function updateStickyHistoryOffset(){const f=$('.history-search');if(!f)return;document.documentElement.style.setProperty('--history-header-top',(64+f.getBoundingClientRect().height+3)+'px');}
+function updateStickyHistoryOffset(){
+ const top=$('.topbar'),sticky=$('#historySticky'),filter=$('.history-search');
+ const topHeight=Math.ceil(top?.getBoundingClientRect().height||64);
+ const stickyHeight=Math.ceil(sticky?.getBoundingClientRect().height||0);
+ const filterHeight=Math.ceil(filter?.getBoundingClientRect().height||0);
+ document.documentElement.style.setProperty('--app-topbar-height',topHeight+'px');
+ document.documentElement.style.setProperty('--history-search-top',(topHeight+stickyHeight+2)+'px');
+ document.documentElement.style.setProperty('--history-header-top',(topHeight+stickyHeight+filterHeight+4)+'px');
+}
+window.addEventListener('resize',()=>requestAnimationFrame(updateStickyHistoryOffset));
 function render(){const content=state.page==='home'?home():state.page==='expense'?expenseHome():state.page==='form'?formPage():state.page==='drafts'?draftsPage():state.page==='success'?successPage():claimList();$('#app').innerHTML=layout(content);updateStickyHistoryOffset();if(state.modal){const first=$('.modal [data-act="close-modal"]');if(first){first.focus();}}}
 function showError(id,message){const field=$(`#field-${id}`),error=$(`#error-${id}`);if(field)field.classList.add('has-error');if(error)error.textContent=message;}
 function clearError(id){$(`#field-${id}`)?.classList.remove('has-error');const e=$(`#error-${id}`);if(e)e.textContent='';}
